@@ -19,7 +19,9 @@ def register(request):
     user_pswd = user_data.get('password', '')
 
     if not user_email or not user_fn or not user_ln or not user_pswd:
-      return HttpResponse("MISSING INFORMATION")
+      response['error'] = "MISSING INFO"
+      response['accepted'] = False
+      return HttpResponse(json.dumps(response), content_type="application/json")
 
     # checks if email is used
     if User.objects.filter(email=user_email):
@@ -28,6 +30,10 @@ def register(request):
       return HttpResponse(json.dumps(response), content_type="application/json")
     user = User.objects.create_user(username=user_email, password=user_pswd, email=user_email, first_name=user_fn, last_name=user_ln)
     response['accepted'] = True 
+    return HttpResponse(json.dumps(response), content_type="application/json")
+  else:
+    response['error'] = 'NOT A POST REQUEST'
+    response['accepted'] = False
     return HttpResponse(json.dumps(response), content_type="application/json")
 
 @csrf_exempt
@@ -54,7 +60,10 @@ def login_view(request):
       response['error'] = 'Wrong Username or Password'
       response['accepted'] = False
       return HttpResponse(json.dumps(response), content_type="application/json")
-
+  else:
+    response['error'] = 'NOT A POST REQUEST'
+    response['accepted'] = False
+    return HttpResponse(json.dumps(response), content_type="application/json")
         
         
     
