@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import login, logout, authenticate
 
 import json
 # Create your views here.
@@ -28,3 +29,33 @@ def register(request):
     user = User.objects.create_user(username=user_email, password=user_pswd, email=user_email, first_name=user_fn, last_name=user_ln)
     response['accepted'] = True 
     return HttpResponse(json.dumps(response), content_type="application/json")
+
+@csrf_exempt
+def login_view(request):
+  response = {}
+  if request.user.is_authenticated():
+    response['error'] = 'You are already logged in'
+    response['accepted'] = False
+    return HttpResponse(json.dumps(response), content_type="application/json")
+  if request.method == 'POST':
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(username=username, password=password)
+    if user is not None:
+      if user.is_active:
+        login(request, user)
+        response['accepted'] = True
+        return HttpResponse(json.dumps(response), content_type="application/json")
+      else:
+        response['error'] = 'Your account has been disabled'
+        response['accepted'] = False
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    else:
+      response['error'] = 'Wrong Username or Password'
+      response['accepted'] = False
+      return HttpResponse(json.dumps(response), content_type="application/json")
+
+        
+        
+    
+    
