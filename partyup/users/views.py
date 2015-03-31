@@ -54,10 +54,9 @@ def create_group(request):
     response = {}
     if request.method == 'POST':
         if request.user.is_authenticated():
-            try:
-                group_events_names  = request.POST['events_names']
-                group_members_names = request.POST['member_names']
-            except KeyError:
+            group_events_names  = request.POST.get('events_names', '')
+            group_members_names = request.POST.get('member_names', '')
+            if not group_events_names or not group_members_names:
                 response['error'] = 'MISSING INFO'
                 response['accepted'] = False
                 return HttpResponse(json.dumps(response),
@@ -86,10 +85,9 @@ def login_view(request):
                             content_type="application/json")
 
     if request.method == 'POST':
-        try:
-            username = request.POST['username']
-            password = request.POST['password']
-        except KeyError:
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
+        if not username or not password:
             response['error'] = 'MISSING INFO'
             response['accepted'] = False
             return HttpResponse(json.dumps(response),
