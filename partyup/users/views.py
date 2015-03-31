@@ -33,6 +33,7 @@ def register(request):
                                 content_type="application/json")
 
         # Create the new account and a profile for that account
+        # TODO: consider sanitizing input
         user = User.objects.create_user(username=user_email, password=user_pswd,
                                         email=user_email, first_name=user_fn,
                                         last_name=user_ln)

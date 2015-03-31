@@ -55,6 +55,3 @@ target/
 
 # Temp Files
 *.swq
-
-# Migrations (these should be done locally)
-partyup/*/migrations/*
