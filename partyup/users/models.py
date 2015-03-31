@@ -73,7 +73,7 @@ class Group(models.Model):
     '''
     events = models.ManyToManyField(Event)
 
-    is_active = models.BooleanField()
+    is_active = models.BooleanField(default=True)
 
     # Pusher
     chat_channel = models.CharField(max_length=50, null=True)
