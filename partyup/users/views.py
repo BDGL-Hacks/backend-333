@@ -3,10 +3,27 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, logout, authenticate
-
+import pusher
 import json
 # Create your views here.
 
+push = pusher.Pusher(
+    app_id='112506',
+    key='2355973b5586034a6c48',
+    secret='ba5289e8fc8d2b7de773'
+  )
+
+# example of connecting to pusher
+@csrf_exempt
+def hi(request):
+  response = {}
+  if request.method == 'POST':
+      user_data = request.POST
+      push_info = {}
+      push_info['message'] = user_data.get('message', '')
+      user_channel = user_data.get('channel', '')
+      
+      push[user_channel].trigger('my-event', push_info)
 @csrf_exempt
 def register(request):
   response = {}
