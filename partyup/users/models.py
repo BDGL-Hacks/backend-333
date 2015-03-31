@@ -5,60 +5,56 @@ from datetime import datetime
 
 # Additional information about users that is not needed at registration
 class User_Profile(models.Model):
+    # Built-in Django user
+    # See https://docs.djangoproject.com/en/1.7/ref/contrib/auth/
+    # for information about models.User
+    user = models.OneToOneField(User, null=True)
     # Should be set to "M" or "F"
     gender = models.CharField(max_length=1, null=True)
 
     birthday = models.DateTimeField(null=True)
 
     # Events for which the user is the administrator
-    event_admin_list = None
+    event_admin_list = models.ManyToManyField('Event', related_name='event_admin_list')
 
     # Events the user has been invited to
-    event_invite_list = None
+    event_invite_list = models.ManyToManyField('Event', related_name='event_invite_list')
 
     # Events the user is attending
-    event_attending_list = None
+    event_attending_list = models.ManyToManyField('Event', related_name='event_attending_list')
 
     # Active groups the users is currently a part of
-    groups_current = None
+    groups_current = models.ManyToManyField('Group', related_name='groups_current')
 
     # Inactive groups the user was a part of
-    groups_past = None
+    groups_past = models.ManyToManyField('Group', related_name='groups_past')
 
     # Need to figure this out
     profile_picture = None
-
-
-class Person(models.Model):
-    # Built-in Django user
-    # See https://docs.djangoproject.com/en/1.7/ref/contrib/auth/
-    # for information about models.User
-    user = models.OneToOneField(User)
-
-    # Additional information about the user that is not needed at registration
-    profile = models.ForeignKey(User_Profile)
 
     def __str__(self):
         return self.user.username
 
 
+
+
 class Event(models.Model):
     date_created = models.DateTimeField('date published', default=datetime.now)
-    created_by = models.ForeignKey(Person, related_name='event_creator')
+    created_by = models.ForeignKey(User_Profile, related_name='event_creator')
     is_active = None
 
     # Admin is in charge of event and can post in Event message board
-    admin = models.ForeignKey(Person)
-    title = None
-    public = None
+    admin = models.ForeignKey(User_Profile)
+    title = models.CharField(max_length=160, null=True)
+    public = models.BooleanField(default=True)
     location = None
-    time = None
-    age_restrictions = None
-    price = None
-    description = None
+    time = models.DateTimeField('time of event')
+    age_restrictions = models.IntegerField(default=0)
+    price = models.IntegerField(default=0)
+    description = models.CharField(max_length=300, null=True)
 
-    invite_list = None
-    attending = None
+    invite_list = models.ManyToManyField(User_Profile, related_name='invite_list')
+    attending_list = models.ManyToManyField(User_Profile, related_name='attending_list')
 
     # TODO later
     category = None
@@ -67,20 +63,20 @@ class Event(models.Model):
 
 class Group(models.Model):
     date_created = models.DateTimeField('date published', default=datetime.now)
-    created_by = models.ForeignKey(Person, related_name='group_creator')
+    created_by = models.ForeignKey(User_Profile, related_name='group_creator')
 
     # People in the group
-    group_members = models.ManyToManyField(Person)
-
+    group_members = models.ManyToManyField(User_Profile, related_name='group_members')
+    invited_members = models.ManyToManyField(User_Profile, related_name='invited_members')
     '''
     Night/itinerary
     '''
     events = models.ManyToManyField(Event)
 
-    is_active = None
+    is_active = models.BooleanField()
 
     # Pusher
-    chat_channel = None
+    chat_channel = models.CharField(max_length=50, null=True)
 
     # Maybe
     picture = None

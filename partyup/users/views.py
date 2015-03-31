@@ -3,9 +3,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, logout, authenticate
-from users.models import Person, User_Profile
+from users.models import User_Profile
 import json
-
 
 @csrf_exempt
 def register(request):
@@ -37,11 +36,9 @@ def register(request):
         user = User.objects.create_user(username=user_email, password=user_pswd,
                                         email=user_email, first_name=user_fn,
                                         last_name=user_ln)
-        profile = User_Profile()
-        profile.save()
-
+        
         # Add new user to the database
-        Person(user=user, profile=profile).save()
+        User_Profile(user=user).save()
 
         response['accepted'] = True
         return HttpResponse(json.dumps(response),
@@ -52,6 +49,32 @@ def register(request):
         return HttpResponse(json.dumps(response),
                             content_type="application/json")
 
+@csrf_exempt
+def create_group(request):
+    response = {}
+    if request.method == 'POST':
+        if request.user.is_authenticated():
+            try:
+                group_events_names  = request.POST['events_names']
+                group_members_names = request.POST['member_names']
+            except KeyError:
+                response['error'] = 'MISSING INFO'
+                response['accepted'] = False
+                return HttpResponse(json.dumps(response),
+                                content_type='application/json')
+            members = []
+            for member_name in group_members_name:
+                members.append()
+        else:
+            response['error'] = 'User is not logged in'
+            response['accepted'] = False
+            return HttpResponse(json.dumps(response),
+                                content_type='application/json')
+    else:
+        response['error'] = 'Must be a POST request'
+        response['accepted'] = False
+        return HttpResponse(json.dumps(response),
+                                content_type='application/json')
 
 @csrf_exempt
 def login_view(request):
