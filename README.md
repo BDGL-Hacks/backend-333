@@ -8,3 +8,15 @@ create group - David
 event search - Blake
     public vs private
 user search  - Blake
+
+Later TODOS:
+create invites
+
+Create-Event fields:
+    title (Mandatory)
+    public
+    time (Mandatory)
+    age_restrictions
+    price
+    description
+    invite_list (Array of Names)
