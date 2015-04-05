@@ -59,12 +59,13 @@ class Event(models.Model):
     # TODO later
     category = None
     picture = None
-
+    def __str__(self):
+        return self.title
 
 class Group(models.Model):
+    title = models.CharField(max_length=100)
     date_created = models.DateTimeField('date published', default=datetime.now)
     created_by = models.ForeignKey(User_Profile, related_name='group_creator')
-
     # People in the group
     group_members = models.ManyToManyField(User_Profile, related_name='group_members')
     invited_members = models.ManyToManyField(User_Profile, related_name='invited_members')

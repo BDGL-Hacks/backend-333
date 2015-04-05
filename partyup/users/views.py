@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, logout, authenticate
-from users.models import User_Profile, Event
+from users.models import User_Profile, Event, Group
 import json
 from datetime import datetime
 
@@ -53,33 +53,60 @@ def register(request):
 @csrf_exempt
 def create_group(request):
     response = {}
+    # Verify that we are posting data
     if request.method != 'POST':
         response['error'] = 'Must be a POST request'
         response['accepted'] = False
         return HttpResponse(json.dumps(response),
                                 content_type='application/json')
+    # Verify that the user is logged in
     if not request.user.is_authenticated():
         response['error'] = 'User is not logged in'
         response['accepted'] = False
         return HttpResponse(json.dumps(response),
                             content_type='application/json')
-    group_events_names  = request.POST.get('events_names', '')
-    group_members_names = request.POST.get('member_names', '')
-    group_name = request.POST.get('group_name', '')
-    if not group_events_names or not group_members_names or not group_name:
+    # grab the User_Profile of the person logged in
+    user = request.user.user_profile
+    # grab the post data
+    # Split the first two by commas
+    events_ids  = request.POST.get('events_ids', '').split(',')
+    invite_list = request.POST.get('invite_list', '').split(',')
+    # add the user to the invite list (A user is invited to their own group)
+    invite_list.append(user.user.username)
+    group_name = request.POST.get('title', '')
+    # Check for mandatory data
+    if not events_ids or not group_name:
         response['error'] = 'MISSING INFO'
         response['accepted'] = False
         return HttpResponse(json.dumps(response),
                             content_type='application/json')
-    group = Group(created_by=request.user, group_name=group_name)
+    # Create and save the group
+    group = Group(created_by=user, title=group_name)
     group.save()    
-    group.chat_channel("GroupChat" + str(id))
-    for event in group_events_names:
-        e = Event.objects.filter(id=event)
-    for name in group_members_names:
+    # Make the chat channel with the group id
+    group.chat_channel = "GroupChat" + str(group.id)
+    # Grab all of the events from the database
+    for num in events_ids:
+        # Get the proper id
+        e = Event.objects.filter(id=int(num))
+        # return false if the event doesn't exist
+        if not e:
+            response['error'] = 'One of your events is not correct'
+            response['accepted'] = False
+            # delete the group (TODO: check to make sure nothing is dangling)
+            group.delete()
+            return HttpResponse(json.dumps(response),
+                                content_type='application/json')
+        group.events.add(e[0])
+    # grab all of the User_Profiles to be invited
+    for name in invite_list:
+        if not name:
+            continue
+        # get the django User object
         u = User.objects.filter(username=name)
+        # Get the actual User_Profile object
         if u:
-            u = u.user_profile
+            u = u[0].user_profile
         if not u:
             response['error'] = 'One of your invitees is not a user'
             response['accepted'] = False
@@ -89,45 +116,60 @@ def create_group(request):
         group.invited_members.add(u)
         #TODO add invites and remove the below line
         group.group_members.add(u)
-        u.groups_current(event)
+        u.groups_current.add(group)
         u.save()
     group.save()
+    response['accepted'] = True
+    return HttpResponse(json.dumps(response),
+                        content_type="application/json")
 
 @csrf_exempt
 def create_event(request):
+    # intialize the end response and the information for event
+    response = {}
+    event_data = {}
+    # check that the request is from someone logged in
     if not request.user.is_authenticated():
         response['error'] = 'You must log in to view this page'
         response['accepted'] = False
         return HttpResponse(json.dumps(response),
                                 content_type='application/json')
+    # Check that this is a post request
     if request.method != 'POST':
         response['error'] = 'Must be a POST request'
         response['accepted'] = False
         return HttpResponse(json.dumps(response),
                                 content_type='application/json')
+    # Grab the post data and the user who is logged in
     data = request.POST
     user = request.user.user_profile
-    response = {}
-    event_data = {}
+    # fill the event fields
     event_data['title'] = data.get('title', '')
     event_data['public'] = data.get('public', '')
     event_data['age_restrictions'] = data.get('age-restrictions', 0)
     event_data['admin'] = user
     event_data['created_by'] = user
     event_data['price'] = data.get('price', 0)
+    # split the invite list by commas
     invite_list = data.get('invite_list', '').split(',')
+    # add the logged in user to the invite list
     invite_list.append(user.user.username)
     time = data.get('time', '')
+    # check for missing POST information
     if not event_data['title']  or not time:
         response['error'] = 'You are missing information'
         response['accepted'] = False
         return HttpResponse(json.dumps(response),
                             content_type='application/json')
+    # change time format
     event_data['time'] = datetime(int(time[0:4]), int(time[4:6]), int(time[6:8]), int(time[8:10]), int(time[10:12]))
+    # create and save the actual event
     event = Event(**event_data)
     event.save()
+    # add the event to the user's admin list
     user.event_admin_list.add(event)
     user.save()
+    # invite all of the invited users
     for name in invite_list:
         # ignore blank entries
         if not name:
@@ -135,6 +177,7 @@ def create_event(request):
         u = User.objects.filter(username=name)
         if u:
             u = u[0].user_profile
+        # error if user doesn't exist
         if not u:
             response['error'] = 'One of your invitees is not a user'
             response['accepted'] = False
@@ -148,6 +191,7 @@ def create_event(request):
         u.event_attending_list.add(event)
         u.save()
     event.save()
+    print event.id
     response['accepted'] = True
     return HttpResponse(json.dumps(response),
                         content_type='application/json')
@@ -169,7 +213,6 @@ def login_view(request):
             response['accepted'] = False
             return HttpResponse(json.dumps(response),
                                 content_type='application/json')
-
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
