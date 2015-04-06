@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, authenticate
 from users.models import User_Profile, Event
-from datetime import datetime
+from datetime import date
 
 
 @csrf_exempt
@@ -113,8 +113,6 @@ def event_search(request):
     Possible information the requst can include is title, public, location
     (not implemented yet), date/time, age, price, category (not implemented
     yet), and description.
-
-    TODO: Thorough testing
     '''
     response = {}
     # Check for errors in the function call
@@ -134,7 +132,8 @@ def event_search(request):
     if 'title' in request.POST:
         query = query.filter(title__icontains=request.POST['title'])
     if 'public' in request.POST:
-        query = query.filter(public=bool(request.POST['public']))
+        # requests.POST['public'] should be either 0 or 1
+        query = query.filter(public=int(request.POST['public']))
     if 'location' in request.POST:
         pass    # TODO
     if 'date' in request.POST:
@@ -144,12 +143,11 @@ def event_search(request):
         year = int(request.POST['date'][:4])
         month = int(request.POST['date'][4:6])
         day = int(request.POST['date'][6:8])
-        hour = int(request.POST['date'][8:10])
-        minute = int(request.POST['date'][10:12])
-        date = datetime(year, month, day, hour, minute)
-        query = query.filter(time=date)
+        # hour = int(request.POST['date'][8:10])
+        # minute = int(request.POST['date'][10:12])
+        query = query.filter(time__startswith=date(year, month, day))
     if 'age' in request.POST:
-        query = query.filter(age_restrictions__gte=int(request.POST['age']))
+        query = query.filter(age_restrictions__lte=int(request.POST['age']))
     if 'price' in request.POST:
         query = query.filter(price__lte=int(request.POST['price']))
     if 'category' in request.POST:
@@ -191,6 +189,7 @@ def event_search(request):
         # Save the updated entry
         results.append(entry)
 
+    # Return results
     response['accepted'] = True
     response['results'] = results
     return JsonResponse(response)
