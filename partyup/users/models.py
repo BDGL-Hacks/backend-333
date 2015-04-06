@@ -39,6 +39,8 @@ class User_Profile(models.Model):
 class Event(models.Model):
     date_created = models.DateTimeField('date published', default=datetime.now)
     created_by = models.ForeignKey(User_Profile, related_name='event_creator')
+
+    # TODO: This. Need to think about best way to update this field in practice
     is_active = None
 
     # Admin is in charge of event and can post in Event message board
