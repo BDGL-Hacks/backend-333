@@ -36,8 +36,6 @@ class User_Profile(models.Model):
         return self.user.username
 
 
-
-
 class Event(models.Model):
     date_created = models.DateTimeField('date published', default=datetime.now)
     created_by = models.ForeignKey(User_Profile, related_name='event_creator')
@@ -47,11 +45,15 @@ class Event(models.Model):
     admin = models.ForeignKey(User_Profile)
     title = models.CharField(max_length=160, null=True)
     public = models.BooleanField(default=True)
-    location = None
     time = models.DateTimeField('time of event')
     age_restrictions = models.IntegerField(default=0)
     price = models.IntegerField(default=0)
     description = models.CharField(max_length=300, null=True)
+
+    # Location information
+    location_name = models.CharField(max_length=160)
+    location_lat = None
+    location_long = None
 
     invite_list = models.ManyToManyField(User_Profile, related_name='invite_list')
     attending_list = models.ManyToManyField(User_Profile, related_name='attending_list')
@@ -59,6 +61,26 @@ class Event(models.Model):
     # TODO later
     category = None
     picture = None
+
+    def __str__(self):
+        return '%d %s' % (self.id, self.title)
+
+    # Return dictionary representation of an Event that can be sent to client
+    def to_dict(self):
+        return {
+            'date_created': str(self.date_created),
+            'created_by': self.created_by,
+            'admin': self.admin,
+            'title': self.title,
+            'public': self.public,
+            'time': str(self.time),
+            'age_restrictions': self.age_restrictions,
+            'price': self.price,
+            'description': self.description,
+            'location_name': self.location_name,
+            'invite_list': self.invite_list.all(),
+            'attending_list': self.attending_list.all(),
+        }
 
 
 class Group(models.Model):
