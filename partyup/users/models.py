@@ -35,6 +35,15 @@ class User_Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+    # Return dictionary representation of an Event that can be sent to client
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.user.username,
+            'first_name': self.user.first_name,
+            'last_name': self.user.last_name
+        }
+
 
 class Event(models.Model):
     date_created = models.DateTimeField('date published', default=datetime.now)

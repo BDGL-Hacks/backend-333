@@ -1,14 +1,16 @@
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from users.models import Event, User_Profile
 from datetime import date, datetime
 
 
-# Check that the given request is a POST request and comes from a user that is
-# logged in. Returns a JsonResponse object containing an error message if the
-# request is invalid. Return None otherwise.
-def validate_request(request):
+def _validate_request(request):
+    '''
+    Check that the given request is a POST request and comes from a user that
+    is logged in. Returns a JsonResponse object containing an error message if
+    the request is invalid. Return None otherwise.
+    '''
     response = {}
     # Check that the request is a POST
     if request.method != 'POST':
@@ -24,7 +26,7 @@ def validate_request(request):
 
 
 @csrf_exempt
-def create_event(request):
+def event_create(request):
     '''
     Create a new event object from the given request and add it to the
     database.
@@ -36,7 +38,7 @@ def create_event(request):
     # intialize the end response and the information for event
     response = {}
     event_data = {}
-    error = validate_request(request)
+    error = _validate_request(request)
     if error:
         return error
 
@@ -47,7 +49,7 @@ def create_event(request):
     # fill the event fields
     event_data['title'] = data.get('title', '')
     event_data['public'] = data.get('public', '')
-    event_data['age_restrictions'] = data.get('age-restrictions', 0)
+    event_data['age_restrictions'] = data.get('age_restrictions', 0)
     event_data['admin'] = user
     event_data['created_by'] = user
     event_data['price'] = data.get('price', 0)
@@ -108,6 +110,44 @@ def create_event(request):
     return JsonResponse(response)
 
 
+def _format_search_results(queryset):
+    '''
+    Takes a Django QuerySet object containing Events or a list of Events.
+    Returns a list of dictionaries containing information for each of the
+    events in the queryset.
+    '''
+    results = []
+    for entry in queryset:
+        # Remove unnecessary fields from query results
+        entry = entry.to_dict()
+        entry.pop('created_by', None)
+
+        # Replace invite_list foreign keys with actual names/values
+        invited = entry.pop('invite_list', None)
+        invited_detail = []
+        for invitee in invited:
+            user_profile = User_Profile.objects.get(pk=invitee.id)
+            invited_detail.append(user_profile.to_dict())
+        entry['invite_list'] = invited_detail
+
+        # Repeat attending_list foreign keys with actual user information
+        attending = entry.pop('attending_list', None)
+        attending_detail = []
+        for attendee in attending:
+            user_profile = User_Profile.objects.get(pk=attendee.id)
+            attending_detail.append(user_profile.to_dict())
+        entry['attending_list'] = attending_detail
+
+        # Replace admin foreign key with the actual admin
+        admin = entry.pop('admin', None)
+        admin = User_Profile.objects.get(pk=admin.id)
+        entry['admin'] = admin.to_dict()
+
+        # Save the updated entry
+        results.append(entry)
+    return results
+
+
 @csrf_exempt
 def event_search(request):
     '''
@@ -117,9 +157,11 @@ def event_search(request):
     Possible information the requst can include is title, public, location
     (not implemented yet), date/time, age, price, category (not implemented
     yet), and description.
+
+    TODO: Modify so it accepts a time parameter that querys just by time of
+    day.
     '''
-    response = {}
-    error = validate_request(request)
+    error = _validate_request(request)
     if error:
         return error
 
@@ -151,42 +193,61 @@ def event_search(request):
     if 'description' in request.POST:
         query = query.filter(description__icontains=request.POST['description'])
 
-    results = []
-    for entry in query:
-        # Remove unnecessary fields from query results
-        entry = entry.to_dict()
-        entry.pop('attending_list', None)
-        entry.pop('created_by', None)
-
-        # Replace foreign keys with actual names/values
-        invited = entry.pop('invite_list', None)
-        invited_detail = []
-        for invitee in invited:
-            user_profile = User_Profile.objects.get(pk=invitee.id)
-            detail = {
-                'id': invitee.id,
-                'username': user_profile.user.username,
-                'first_name': user_profile.user.first_name,
-                'last_name': user_profile.user.last_name
-            }
-            invited_detail.append(detail)
-        entry['invite_list'] = invited_detail
-
-        admin = entry.pop('admin', None)
-        admin = User_Profile.objects.get(pk=admin.id)
-        admin_detail = {
-            'id': admin.id,
-            'username': admin.user.username,
-            'first_name': admin.user.first_name,
-            'last_name': admin.user.last_name
-        }
-        entry['admin'] = admin_detail
-
-        # Save the updated entry
-        results.append(entry)
+    # Parse the output and get a list of dicts back
+    results = _format_search_results(query)
 
     # Return results
-    response['accepted'] = True
-    response['results'] = results
+    response = {
+        'accepted': True,
+        'results': results
+    }
 
+    return JsonResponse(response)
+
+
+@csrf_exempt
+def event_get(request):
+    '''
+    This function is meant to provide an easy way to query events that are
+    frequently needed by a given user. That is, events created by the user,
+    events the user is attending, and events the user has been invited to.
+
+    Takes a POST request that contains the parameter 'type'. 'type' should be
+    the type of events that are being queried. 'type' may be one of three
+    values: 'invited' (returns events created by the given user), 'attending'
+    (returns events the given user is attending), or 'created' (returned events
+    created by the given user). Note that the parameter may include multiple
+    values for type. For example, "type=attending&type=created" is a valid
+    request.
+
+    Returns a JSON in the form [{"accepted": true, "invited": [<JSON with
+    events user is invited to>], "attending": [<JSON with events the user is
+    attending>], "created": [<JSON with events the user created>]}]. Note that
+    only the requested fields will be included in the JSON (e.g. if the request
+    does not ask for events the user created, the events the user created will
+    not be returned).
+    '''
+    error = _validate_request(request)
+    if error:
+        return error
+
+    # Check the fields in the request
+    response = {}
+    for t in request.POST.getlist('type'):
+        user = request.user.user_profile
+        if t == 'attending':
+            result = user.event_attending_list.all()
+        elif t == 'created':
+            result = Event.objects.all().filter(created_by=user)
+        elif t == 'invited':
+            result = user.invite_list.all()
+        else:
+            return JsonResponse({'accepted': False, 'error': 'Invalid type'})
+
+        # Replace the foreign keys in the result with the actual events and
+        # then format those events before returning them to the clien.
+        events = [Event.objects.get(pk=event.id) for event in result]
+        response[t] = _format_search_results(events)
+
+    response['accepted'] = True
     return JsonResponse(response)
