@@ -3,7 +3,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, authenticate
 from users.models import User_Profile, Event, Group
-from datetime import datetime
 
 
 @csrf_exempt
@@ -50,7 +49,7 @@ def create_group(request):
     response = {}
     # Verify that we are posting data
     if request.method != 'POST':
-        response['error'] = 'Must be a POST request'
+        response['error'] = 'NOT A POST REQUEST'
         response['accepted'] = False
         return JsonResponse(response)
 
