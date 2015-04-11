@@ -132,3 +132,20 @@ def user_search(request):
         response['error'] = 'MISSING INFORMATION' 
         response['accepted'] = False
         return JsonResponse(response)
+
+@csrf_exempt
+def user_batch(request):
+    response = {}        
+    error = _validate_request(request)
+    if error:
+        return error
+
+    query = User.objects.all()[0:10]
+    print query
+    results = _format_search_results(query)
+    response = {
+        'accepted': True,
+        'results': results
+    }
+    return JsonResponse(response)
+    

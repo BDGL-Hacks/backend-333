@@ -127,6 +127,10 @@ def group_getid(request):
         response['accepted'] = False
         return JsonResponse(response)
     group = group[0]
+    if not group.group_members.filter(id=user.id):
+        response['error'] = 'NEED PERMISSION FOR GROUP'
+        response['accepted'] = False
+        return JsonResponse(response)
     return JsonResponse(group.to_dict())
     
         

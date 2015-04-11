@@ -58,3 +58,6 @@ target/
 
 # Ignore migrations
 partyup/*/migrations/*
+
+#ignore keys/*
+keys/*
