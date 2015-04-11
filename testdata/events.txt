@@ -1,0 +1,11 @@
+# username title time location_name public age_restriction price invite_guests
+# username is the person to use when creating the event
+# time is the displacement (in days) from the current time
+# invite_guest gives the number of people on the invite list. Those users are
+# chosen at random from the users.txt file.
+iman.a.appa@drexel.edu event1 5 house1 1 0 0 0
+jessica.l.amico@drexel.edu Semi-formals 20 Tower 0 0 0 30
+kashyap.askhok@drexel.edu ShitThatGlows 2 Colonial 1 0 0 0
+peter.gustav.andersson@drexel.edu Peter's 9 dorm 0 21 0 20
+matthew.williams.baer@drexel.edu pricey 30 anywhere 1 0 50 0
+erin.bailey@drexel.edu boring 3 drexel 1 0 0 5
