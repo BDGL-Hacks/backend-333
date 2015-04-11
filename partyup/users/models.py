@@ -108,8 +108,17 @@ class Group(models.Model):
 
     is_active = models.BooleanField(default=True)
 
-    # Pusher
-    chat_channel = models.CharField(max_length=50, null=True)
-
     # Maybe
+    picture = None
+
+class Channel(models.Model):
+    name = models.CharField(max_length=50, null=True)
+    group = models.ForeignKey(Group)
+    num_messages = models.IntegerField(default=0)
+
+class Message(models.Model):
+    channel = models.ForeignKey(Channel)
+    time_sent = models.DateTimeField('date published', default=datetime.now)
+    owner = models.ForeignKey(User_Profile)
+    text = models.CharField(max_length=160, null=True)
     picture = None
