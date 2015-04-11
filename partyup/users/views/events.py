@@ -180,7 +180,7 @@ def event_search(request):
         # Parse datetime object from request
         # Date should be formatted as follows:
         # YYYYMMDDhhmm
-        year = int(request.POST['date'][:4])
+        yehar = int(request.POST['date'][:4])
         month = int(request.POST['date'][4:6])
         day = int(request.POST['date'][6:8])
         query = query.filter(time__startswith=date(year, month, day))

@@ -4,6 +4,25 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, authenticate
 from users.models import User_Profile, Event, Group
 
+def _validate_request(request):
+    '''
+    Check that the given request is a POST request and comes from a user that
+    is logged in. Returns a JsonResponse object containing an error message if
+    the request is invalid. Return None otherwise.
+    '''
+    response = {}
+    # Check that the request is a POST
+    if request.method != 'POST':
+        response['error'] = 'NOT A POST REQUEST'
+        response['accepted'] = False
+        return JsonResponse(response)
+    # Check that the user is logged in
+    if not request.user.is_authenticated():
+        response['error'] = 'User is not logged in'
+        response['accepted'] = False
+        return JsonResponse(response)
+    return None
+
 @csrf_exempt
 def register(request):
     response = {}
@@ -77,7 +96,39 @@ def login_view(request):
         response['accepted'] = False
         return JsonResponse(response)
 
+def _format_search_results(queryset):
+    results = []
+    for entry in queryset:
+        if hasattr(entry, 'user_profile'):
+            entry = entry.user_profile.to_dict()
+            results.append(entry)
+    return results
 
 @csrf_exempt
 def user_search(request):
-    pass
+    response = {}
+    
+    error = _validate_request(request)
+    if error:
+        return error
+
+    query = User.objects.all()
+    
+    if 'search' in request.POST:
+        terms = request.POST['search'].split(' ')
+        for term in terms:
+            if term:
+                first = query.filter(first_name__icontains=term)
+                last = query.filter(last_name__icontains=term)
+                username = query.filter(username__icontains=term)
+                query = first | last | username
+        results = _format_search_results(query) 
+        response = {
+            'accepted': True,
+            'results': results
+        }
+        return JsonResponse(response)
+    else:
+        response['error'] = 'MISSING INFORMATION' 
+        response['accepted'] = False
+        return JsonResponse(response)
