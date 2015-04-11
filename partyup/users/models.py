@@ -92,6 +92,13 @@ class Event(models.Model):
             'invite_list': self.invite_list.all(),
             'attending_list': self.attending_list.all(),
         }
+    def to_dict_sparse(self):
+        return {
+            'title': self.title,
+            'location_name': self.location_name,
+            'time': str(self.time),
+            'id': self.id,
+        }    
 
 
 class Group(models.Model):
@@ -110,7 +117,22 @@ class Group(models.Model):
 
     # Maybe
     picture = None
+    def __str__(self):
+        return '%d %s' % (self.id, self.title)
 
+    def to_dict(self):
+        members = []
+        for member in self.group_members.all():
+            members.append(member.to_dict())
+        events = []
+        for event in self.events.all():
+            print event
+            events.append(event.to_dict_sparse())
+        return {
+            'title': self.title,
+            'members': members,
+            'events': events,
+        } 
 class Channel(models.Model):
     name = models.CharField(max_length=50, null=True)
     group = models.ForeignKey(Group)

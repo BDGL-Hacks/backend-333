@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from users.views import views, events, accounts
+from users.views import views, events, accounts, groups
 
 urlpatterns = patterns(
     '',
@@ -9,7 +9,8 @@ urlpatterns = patterns(
     url(r'^users/login', accounts.login_view, name='login'),
     url(r'^users/search', accounts.user_search),
     
-    url(r'^groups/create', views.create_group, name='create_group'),
+    url(r'^groups/create', groups.create_group, name='create_group'),
+    url(r'^groups/getid', groups.group_getid, name='group_getid'),
 
     url(r'^events/create', events.event_create, name='create_event'),
     url(r'^events/get', events.event_get),
