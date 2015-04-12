@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import login, authenticate
 from users.models import User_Profile, Event, Group
+
 
 def _validate_request(request):
     '''
@@ -22,6 +22,7 @@ def _validate_request(request):
         response['accepted'] = False
         return JsonResponse(response)
     return None
+
 
 @csrf_exempt
 def create_group(request):
@@ -47,7 +48,7 @@ def create_group(request):
     invite_list = request.POST.get('invite_list', '').split(',')
 
     # add the user to the invite list (A user is invited to their own group)
-    invite_list.append(user.user.username)
+    invite_list.append(user.user.email)
     group_name = request.POST.get('title', '')
 
     # Check for mandatory data
@@ -85,7 +86,7 @@ def create_group(request):
             continue
 
         # get the django User object
-        u = User.objects.filter(username=name)
+        u = User.objects.filter(email=name)
 
         # Get the actual User_Profile object
         if u:
@@ -106,24 +107,25 @@ def create_group(request):
     response['accepted'] = True
     return JsonResponse(response)
 
+
 @csrf_exempt
 def group_getid(request):
     error = _validate_request(request)
     if error:
-       return error 
+        return error
 
     response = {}
     data = request.POST
     user = request.user.user_profile
     groupid = data.get('id', '')
     if not groupid:
-        reponse['error'] = 'MISSING INFO'
+        response['error'] = 'MISSING INFO'
         response['accepted'] = False
         return JsonResponse(response)
 
     group = Group.objects.filter(id=groupid)
     if not group:
-        reponse['error'] = 'INCORRECT ID'
+        response['error'] = 'INCORRECT ID'
         response['accepted'] = False
         return JsonResponse(response)
     group = group[0]
@@ -132,5 +134,3 @@ def group_getid(request):
         response['accepted'] = False
         return JsonResponse(response)
     return JsonResponse(group.to_dict())
-    
-        

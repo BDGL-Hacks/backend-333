@@ -26,6 +26,7 @@ def _validate_request(request):
         return JsonResponse(response)
     return None
 
+
 @csrf_exempt
 def register(request):
     response = {}
@@ -117,6 +118,7 @@ def login_view(request):
         response['accepted'] = False
         return JsonResponse(response)
 
+
 def _format_search_results(queryset):
     results = []
     for entry in queryset:
@@ -125,48 +127,49 @@ def _format_search_results(queryset):
             results.append(entry)
     return results
 
+
 @csrf_exempt
 def user_search(request):
     response = {}
-    
+
     error = _validate_request(request)
     if error:
         return error
 
     query = User.objects.all()
-    
+
     if 'search' in request.POST:
         terms = request.POST['search'].split(' ')
         for term in terms:
             if term:
                 first = query.filter(first_name__icontains=term)
                 last = query.filter(last_name__icontains=term)
-                username = query.filter(username__icontains=term)
+                username = query.filter(email__icontains=term)
                 query = first | last | username
-        results = _format_search_results(query) 
+
+        results = _format_search_results(query)
         response = {
             'accepted': True,
             'results': results
         }
         return JsonResponse(response)
     else:
-        response['error'] = 'MISSING INFORMATION' 
+        response['error'] = 'MISSING INFORMATION'
         response['accepted'] = False
         return JsonResponse(response)
 
+
 @csrf_exempt
 def user_batch(request):
-    response = {}        
+    response = {}
     error = _validate_request(request)
     if error:
         return error
 
     query = User.objects.all()[0:10]
-    print query
     results = _format_search_results(query)
     response = {
         'accepted': True,
         'results': results
     }
     return JsonResponse(response)
-    
