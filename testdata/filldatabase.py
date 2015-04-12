@@ -28,32 +28,34 @@ def add_users():
             # Ignore commented lines
             continue
 
-        data = {
+        reg_data = {
             'first_name': line[0],
             'last_name': line[1],
             'email': line[2],
             'password': line[3]
         }
 
-        r = requests.post(server + '/users/register/', data=data)
+        r = requests.post(server + '/users/register/', data=reg_data)
         response = r.json()
 
         global cookies
+        if (response['accepted'] is False and
+            'email is being used' not in response['error']):
+            print('registration fail', l, response, file=sys.stderr)
+            continue
+
+        # Log in user and save the cookie
+        login_data = {
+            'username': line[2],
+            'password': line[3]
+        }
+        r = requests.post(server + '/users/login/', data=login_data)
+        response = r.json()
         if response['accepted'] is True:
-            # Store the users login cookie
-            cookies[data['email']] = r.cookies
-        elif (response['accepted'] is False and
-              'email is being used' in response['error']):
-            # Log in because the cookie may be needed later
-            r = requests.post(server + '/users/login/', data=data)
-            response = r.json()
-            if response['accepted'] is True:
-                cookies[data['email']] = r.cookies
-            else:
-                print(l, response, file=sys.stderr)
+                cookies[reg_data['email']] = r.cookies
         else:
             # Not clear what the error was so print to log file
-            print(l, response, file=sys.stderr)
+            print('login fail', l, response, file=sys.stderr)
 
     f.close()
 
@@ -105,6 +107,7 @@ def add_events():
             continue
 
         # line[0] is the username
+        global cookies
         cookie = cookies[line[0]]
 
         # Parse the rest of the line
@@ -134,7 +137,6 @@ def main(args):
     global server
     if len(args) > 1:
         server = args[1]
-
     add_users()
     add_events()
     # add_groups()
