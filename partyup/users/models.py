@@ -143,4 +143,5 @@ class Message(models.Model):
     time_sent = models.DateTimeField('date published', default=datetime.now)
     owner = models.ForeignKey(User_Profile)
     text = models.CharField(max_length=160, null=True)
+    number = models.IntegerField(default=0)
     picture = None

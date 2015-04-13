@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, authenticate
-from users.models import User_Profile, Event, Group
+from users.models import User_Profile, Event, Group, Message
 from keys.pusherAPI import createPusher
 
 pusherAPI = createPusher()
@@ -27,6 +27,54 @@ def _validate_request(request):
     return None
 
 @csrf_exempt
+def messages_get(request):
+    error = _validate_request(request)
+    if error:
+        return error
+
+    response = {}
+    data = request.POST
+    user = request.user.user_profile
+
+    groupid = data.get('groupid', '')
+    messageID = int(data.get('messageid', ''))
+    if not groupid or not messageID:
+        response['error'] = 'MISSING INFO'
+        response['accepted'] = False
+        return JsonResponse(response)
+    
+    group = Group.objects.filter(id=groupid)
+    if not group:
+        response['error'] = 'INCORRECT ID'
+        response['accepted'] = False
+        return JsonResponse(response)
+    group = group[0]
+
+    if not group.group_members.filter(id=user.id):
+        response['error'] = 'NEED PERMISSION FOR GROUP'
+        response['accepted'] = False
+        return JsonResponse(response)
+
+    channel = group.channel_set.all()[0]
+
+    messages = []
+    messagesObj = Message.objects.filter(channel=channel)
+    index = messageID - 10
+    if index < 0:
+        index = 0
+    messagesObj = messagesObj[index:messageID - 1]
+    for message in messagesObj:
+        messages.append( {
+            'id': message.number,
+            'message': message.text,
+        })
+        response = {
+            'messages':messages,
+            'accepted':True,
+        }
+    return JsonResponse(response)
+
+@csrf_exempt
 def messages_post(request):
     error = _validate_request(request)
     if error:
@@ -39,13 +87,13 @@ def messages_post(request):
     groupid = data.get('groupid', '')
     message = data.get('message', '')
     if not groupid or not message:
-        reponse['error'] = 'MISSING INFO'
+        response['error'] = 'MISSING INFO'
         response['accepted'] = False
         return JsonResponse(response)
     
     group = Group.objects.filter(id=groupid)
     if not group:
-        reponse['error'] = 'INCORRECT ID'
+        response['error'] = 'INCORRECT ID'
         response['accepted'] = False
         return JsonResponse(response)
     group = group[0]
@@ -56,4 +104,10 @@ def messages_post(request):
         return JsonResponse(response)
 
     channel = group.channel_set.all()[0]
+    channel.num_messages += 1
+    channel.save()
+    messageObj = Message(channel=channel, owner=user, text=message, number=channel.num_messages)
+    messageObj.save()
     pusherAPI[channel.name].trigger('message',{'message': message})
+    response['accepted'] = True 
+    return JsonResponse(response)
