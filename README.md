@@ -1,6 +1,10 @@
 # backend-333
 Back end for COS 333 project
 
+UTF-8 command
+alter table partyup.auth_user modify column username varchar(30) character set utf8 collate utf8_general_ci not null;
+
+
 TODO list:
 
 General:

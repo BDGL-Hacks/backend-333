@@ -1,8 +1,11 @@
+from base64 import b64encode
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, authenticate
-from users.models import User_Profile, Event, Group
+from hashlib import md5
+from users.models import User_Profile
+
 
 def _validate_request(request):
     '''
@@ -23,6 +26,7 @@ def _validate_request(request):
         return JsonResponse(response)
     return None
 
+
 @csrf_exempt
 def register(request):
     response = {}
@@ -40,15 +44,30 @@ def register(request):
             response['accepted'] = False
             return JsonResponse(response)
 
-        # checks if email is used
-        if User.objects.filter(email=user_email):
-            response['error'] = 'That email is being used. Please use another email'
-            response['accepted'] = False
-            return JsonResponse(response)
+        # Hash the email to create a unique username that is sure to be less
+        # than 30 characters long (the size of the username field in the Django
+        # User model).
+        # Base64 encode to convert to ascii string of length less than 30
+        # characters
+        username = b64encode(md5(user_email).digest())
+        if User.objects.filter(username=username):
+            # Make sure that match is not a hash collision
+            # checks if email is used
+            if User.objects.filter(email=user_email):
+                response['error'] = 'That email is being used. Please use another email'
+                response['accepted'] = False
+                return JsonResponse(response)
+            else:
+                # hash collision
+                response['error'] = 'There is a problem creating your account. \
+                    Please email blawson@princeton.edu to resolve the issue \
+                    and to receive a $20 gift card.'
+                response['accepted'] = False
+                return JsonResponse(response)
 
         # Create the new account and a profile for that account
         # TODO: consider sanitizing input
-        user = User.objects.create_user(username=user_email, password=user_pswd,
+        user = User.objects.create_user(username=username, password=user_pswd,
                                         email=user_email, first_name=user_fn,
                                         last_name=user_ln)
 
@@ -60,6 +79,7 @@ def register(request):
         response['error'] = 'NOT A POST REQUEST'
         response['accepted'] = False
         return JsonResponse(response)
+
 
 @csrf_exempt
 def login_view(request):
@@ -77,6 +97,8 @@ def login_view(request):
             response['accepted'] = False
             return JsonResponse(response)
 
+        # Hash username
+        username = b64encode(md5(username).digest())
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
@@ -96,6 +118,7 @@ def login_view(request):
         response['accepted'] = False
         return JsonResponse(response)
 
+
 def _format_search_results(queryset):
     results = []
     for entry in queryset:
@@ -104,48 +127,49 @@ def _format_search_results(queryset):
             results.append(entry)
     return results
 
+
 @csrf_exempt
 def user_search(request):
     response = {}
-    
+
     error = _validate_request(request)
     if error:
         return error
 
     query = User.objects.all()
-    
+
     if 'search' in request.POST:
         terms = request.POST['search'].split(' ')
         for term in terms:
             if term:
                 first = query.filter(first_name__icontains=term)
                 last = query.filter(last_name__icontains=term)
-                username = query.filter(username__icontains=term)
+                username = query.filter(email__icontains=term)
                 query = first | last | username
-        results = _format_search_results(query) 
+
+        results = _format_search_results(query)
         response = {
             'accepted': True,
             'results': results
         }
         return JsonResponse(response)
     else:
-        response['error'] = 'MISSING INFORMATION' 
+        response['error'] = 'MISSING INFORMATION'
         response['accepted'] = False
         return JsonResponse(response)
 
+
 @csrf_exempt
 def user_batch(request):
-    response = {}        
+    response = {}
     error = _validate_request(request)
     if error:
         return error
 
     query = User.objects.all()[0:10]
-    print query
     results = _format_search_results(query)
     response = {
         'accepted': True,
         'results': results
     }
     return JsonResponse(response)
-    

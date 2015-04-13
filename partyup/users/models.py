@@ -33,13 +33,13 @@ class User_Profile(models.Model):
     profile_picture = None
 
     def __str__(self):
-        return self.user.username
+        return self.user.email
 
     # Return dictionary representation of an Event that can be sent to client
     def to_dict(self):
         return {
             'id': self.id,
-            'username': self.user.username,
+            'username': self.user.email,
             'first_name': self.user.first_name,
             'last_name': self.user.last_name
         }

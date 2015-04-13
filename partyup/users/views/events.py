@@ -53,11 +53,11 @@ def event_create(request):
     event_data['admin'] = user
     event_data['created_by'] = user
     event_data['price'] = data.get('price', 0)
-    event_data['location_name'] = data.get('location_name', "")
+    event_data['location_name'] = data.get('location_name', '')
     # split the invite list by commas
     invite_list = data.get('invite_list', '').split(',')
     # add the logged in user to the invite list
-    invite_list.append(user.user.username)
+    invite_list.append(user.user.email)
     time = data.get('time', '')
 
     # check for missing POST information
@@ -87,7 +87,7 @@ def event_create(request):
         if not name:
             continue
 
-        u = User.objects.filter(username=name)
+        u = User.objects.filter(email=name)
         if u:
             u = u[0].user_profile
         else:

@@ -60,4 +60,4 @@ target/
 partyup/*/migrations/*
 
 #ignore keys/*
-keys/*
+keys/
