@@ -91,6 +91,7 @@ class Event(models.Model):
             'location_name': self.location_name,
             'invite_list': self.invite_list.all(),
             'attending_list': self.attending_list.all(),
+            'id': self.id,
         }
     def to_dict_sparse(self):
         return {

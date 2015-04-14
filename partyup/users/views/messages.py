@@ -37,8 +37,8 @@ def messages_get(request):
     user = request.user.user_profile
 
     groupid = data.get('groupid', '')
-    messageID = int(data.get('messageid', ''))
-    if not groupid or not messageID:
+    messageID = int(data.get('messageid', '-1'))
+    if not groupid:
         response['error'] = 'MISSING INFO'
         response['accepted'] = False
         return JsonResponse(response)
@@ -56,7 +56,8 @@ def messages_get(request):
         return JsonResponse(response)
 
     channel = group.channel_set.all()[0]
-
+    if messageID < 0:
+        messageID = channel.num_messages
     messages = []
     messagesObj = Message.objects.filter(channel=channel)
     index = messageID - 10

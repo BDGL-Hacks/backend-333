@@ -48,7 +48,8 @@ def event_create(request):
 
     # fill the event fields
     event_data['title'] = data.get('title', '')
-    event_data['public'] = data.get('public', '')
+    event_data['public'] = data.get('public', True)
+    event_data['description'] = data.get('description', '')
     event_data['age_restrictions'] = data.get('age_restrictions', 0)
     event_data['admin'] = user
     event_data['created_by'] = user

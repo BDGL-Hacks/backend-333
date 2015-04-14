@@ -134,3 +134,18 @@ def group_getid(request):
         response['accepted'] = False
         return JsonResponse(response)
     return JsonResponse(group.to_dict())
+
+@csrf_exempt
+def group_get(request):
+    error = _validate_request(request)
+    if error:
+        return error
+
+    response = {}
+    user = request.user.user_profile
+    groups = user.groups_current.all()
+    response['attending'] = []
+    for group in groups:
+        response['attending'].append(group.to_dict())
+    response['accepted'] = True
+    return JsonResponse(response)
