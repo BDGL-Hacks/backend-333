@@ -67,7 +67,16 @@ def create_group(request):
     # Grab all of the events from the database
     for num in events_ids:
         # Get the proper id
-        e = Event.objects.filter(id=int(num))
+        event_id = -1
+        try:
+            event_id = int(num)
+        except ValueError:
+            response['error'] = 'Your events are not all numbers'
+            response['accepted'] = False
+            group.delete()
+            return JsonResponse(response)
+            
+        e = Event.objects.filter(id=event_id)
 
         # return false if the event doesn't exist
         if not e:
@@ -100,6 +109,7 @@ def create_group(request):
         group.invited_members.add(u)
         # TODO add invites and remove the below line
         group.group_members.add(u)
+        u.groups_invite_list.add(group)
         u.groups_current.add(group)
         u.save()
 
@@ -143,9 +153,17 @@ def group_get(request):
 
     response = {}
     user = request.user.user_profile
-    groups = user.groups_current.all()
-    response['attending'] = []
-    for group in groups:
-        response['attending'].append(group.to_dict())
+    for t in request.POST.getlist('type'):
+        if t == 'attending':
+            result = user.groups_current.all()
+        elif t == 'created':
+            result = Group.objects.all().filter(created_by=user)
+        elif t == 'invited':
+            result = user.groups_invite_list.all()
+        else:
+            return JsonResponse({'accepted': False, 'error': 'Invalid type'})
+        groups = [group.to_dict() for group in result]
+        response[t] = groups
+            
     response['accepted'] = True
     return JsonResponse(response)

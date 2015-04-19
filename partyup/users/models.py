@@ -23,6 +23,9 @@ class User_Profile(models.Model):
     # Events the user is attending
     event_attending_list = models.ManyToManyField('Event', related_name='event_attending_list')
 
+    # Groups the user has been invited to
+    groups_invite_list = models.ManyToManyField('Group', related_name='groups_invite_list')
+    
     # Active groups the users is currently a part of
     groups_current = models.ManyToManyField('Group', related_name='groups_current')
 
@@ -130,6 +133,7 @@ class Group(models.Model):
             print event
             events.append(event.to_dict_sparse())
         return {
+            'id': self.id,
             'title': self.title,
             'members': members,
             'events': events,
