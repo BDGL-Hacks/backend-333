@@ -47,8 +47,6 @@ def create_group(request):
     events_ids = request.POST.get('events_ids', '').split(',')
     invite_list = request.POST.get('invite_list', '').split(',')
 
-    # add the user to the invite list (A user is invited to their own group)
-    invite_list.append(user.user.email)
     group_name = request.POST.get('title', '')
 
     # Check for mandatory data
@@ -61,6 +59,10 @@ def create_group(request):
     group = Group(created_by=user, title=group_name)
     group.save()
 
+    # add user to be attending their own group
+    user.groups_current.add(group)
+    group.group_members.add(user)
+    user.save()
     # Make the chat channel with the group id
     group.chat_channel = "GroupChat" + str(group.id)
 
@@ -107,10 +109,7 @@ def create_group(request):
             return JsonResponse(response)
 
         group.invited_members.add(u)
-        # TODO add invites and remove the below line
-        group.group_members.add(u)
         u.groups_invite_list.add(group)
-        u.groups_current.add(group)
         u.save()
 
     group.save()

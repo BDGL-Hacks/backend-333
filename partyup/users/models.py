@@ -10,27 +10,27 @@ class User_Profile(models.Model):
     # for information about models.User
     user = models.OneToOneField(User, null=True)
     # Should be set to "M" or "F"
-    gender = models.CharField(max_length=1, null=True)
+    gender = models.CharField(max_length=1, null=True, blank=True)
 
-    birthday = models.DateTimeField(null=True)
+    birthday = models.DateTimeField(null=True, blank=True)
 
     # Events for which the user is the administrator
-    event_admin_list = models.ManyToManyField('Event', related_name='event_admin_list')
+    event_admin_list = models.ManyToManyField('Event', related_name='event_admin_list', blank=True)
 
     # Events the user has been invited to
-    event_invite_list = models.ManyToManyField('Event', related_name='event_invite_list')
+    event_invite_list = models.ManyToManyField('Event', related_name='event_invite_list', blank=True)
 
     # Events the user is attending
-    event_attending_list = models.ManyToManyField('Event', related_name='event_attending_list')
+    event_attending_list = models.ManyToManyField('Event', related_name='event_attending_list', blank=True)
 
     # Groups the user has been invited to
-    groups_invite_list = models.ManyToManyField('Group', related_name='groups_invite_list')
+    groups_invite_list = models.ManyToManyField('Group', related_name='groups_invite_list', blank=True)
     
     # Active groups the users is currently a part of
-    groups_current = models.ManyToManyField('Group', related_name='groups_current')
+    groups_current = models.ManyToManyField('Group', related_name='groups_current', blank=True)
 
     # Inactive groups the user was a part of
-    groups_past = models.ManyToManyField('Group', related_name='groups_past')
+    groups_past = models.ManyToManyField('Group', related_name='groups_past', blank=True)
 
     # Need to figure this out
     profile_picture = None

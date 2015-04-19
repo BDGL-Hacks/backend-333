@@ -57,8 +57,6 @@ def event_create(request):
     event_data['location_name'] = data.get('location_name', '')
     # split the invite list by commas
     invite_list = data.get('invite_list', '').split(',')
-    # add the logged in user to the invite list
-    invite_list.append(user.user.email)
     time = data.get('time', '')
 
     # check for missing POST information
@@ -78,9 +76,12 @@ def event_create(request):
     event = Event(**event_data)
     event.save()
 
-    # add the event to the user's admin list
+    # add the event to the user's admin + attending list
     user.event_admin_list.add(event)
+    user.event_attending_list.add(event)
+    event.attending_list.add(user)
     user.save()
+    
 
     # invite all of the invited users
     for name in invite_list:
@@ -101,9 +102,6 @@ def event_create(request):
 
         event.invite_list.add(u)
         u.event_invite_list.add(event)
-        # TODO add invites and remove the below line
-        event.attending_list.add(u)
-        u.event_attending_list.add(event)
         u.save()
 
     event.save()
