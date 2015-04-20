@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from users.models import Event, User_Profile
+from users.models import Event, User_Profile, Group
 from datetime import date, datetime
 
 def _validate_request(request):
@@ -71,6 +71,108 @@ def respond_invite(request):
         response['error'] = 'Wrong object type'
         response['accepted'] = False
         return JsonResponse(response)
+
+    response['accepted'] = True
+    return JsonResponse(response)
+        
+@csrf_exempt
+def group_invite(request):
+    error = _validate_request(request)
+    if error:
+        return error
+
+    data = request.POST
+    user = request.user.user_profile
+    response = {}
+
+    groupID = data.get("group", '')
+    inviteeIDs = data.get('invitee', '')
+    try:
+        groupID = int(groupID)
+    except ValueError:
+        response['error'] = 'Please provide Group/Invitee IDs'
+        response['accepted'] = False
+        return JsonResponse(response)
+
+    group = Group.objects.filter(id=groupID)
+    if not group:
+        response['error'] = 'The group requested does not exist'
+        response['accepted'] = False
+        return JsonResponse(response)
+    group = group[0]
+    if not group.group_members.filter(id=user.id):
+        response['error'] = 'You do not have permission to add to this group'
+        response['accepted'] = False
+        return JsonResponse(response)
+
+    invitees = inviteeIDs.split(',')
+    for i in invitees:
+        invitee = User_Profile.objects.filter(id=i)
+        if not invitee:
+            response['error'] = 'The user requested does not exist'
+            response['accepted'] = False
+            return JsonResponse(response)
+
+        invitee = invitee[0]
+        # TODO: send push notifications for the person
+        invitee.groups_invite_list.add(group)
+        invitee.save()
+        group.invited_members.add(invitee)
+    group.save()
+
+    response['accepted'] = True
+    return JsonResponse(response)
+    
+@csrf_exempt
+def event_invite(request):
+    error = _validate_request(request)
+    if error:
+        return error
+
+    data = request.POST
+    user = request.user.user_profile
+    response = {}
+
+    eventID = data.get("event", '')
+    inviteeIDs = data.get('invitee', '')
+    try:
+        eventID = int(eventID)
+    except ValueError:
+        response['error'] = 'Please provide Event/Invitee IDs'
+        response['accepted'] = False
+        return JsonResponse(response)
+
+    event = Event.objects.filter(id=eventID)
+    if not event:
+        response['error'] = 'The event requested does not exist'
+        response['accepted'] = False
+        return JsonResponse(response)
+    event = event[0]
+    if event.public:
+        if not event.attending_list.filter(id=user.id):
+            response['error'] = 'You do not have permission to add to this event'
+            response['accepted'] = False
+            return JsonResponse(response)
+    else:
+        if not event.admin.id == user.id:
+            response['error'] = 'You do not have permission to add to this event'
+            response['accepted'] = False
+            return JsonResponse(response)
+            
+    invitees = inviteeIDs.split(',')
+    for i in invitees:
+        invitee = User_Profile.objects.filter(id=i)
+        if not invitee:
+            response['error'] = 'The user requested does not exist'
+            response['accepted'] = False
+            return JsonResponse(response)
+
+        invitee = invitee[0]
+        # TODO: send push notifications for the person
+        invitee.event_invite_list.add(event)
+        invitee.save()
+        event.invite_list.add(invitee)
+    event.save()
 
     response['accepted'] = True
     return JsonResponse(response)

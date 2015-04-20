@@ -17,9 +17,10 @@ urlpatterns = patterns(
     url(r'^groups/get', groups.group_get), 
     url(r'^groups/messages/post', messages.messages_post, name='messages_post'),
     url(r'^groups/messages/get', messages.messages_get),
-
+    url(r'^groups/invite', invites.group_invite),
 
     url(r'^events/create', events.event_create, name='create_event'),
     url(r'^events/get', events.event_get),
     url(r'^events/search', events.event_search),
+    url(r'^events/invite', invites.event_invite),
 )
