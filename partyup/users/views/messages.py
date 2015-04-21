@@ -71,6 +71,7 @@ def messages_get(request):
             'id': message.number,
             'message': message.text,
             'owner': message.owner.to_dict(),
+            'time': message.time_sent,
         })
     response = {
         'messages': messages,
@@ -113,6 +114,9 @@ def messages_post(request):
     channel.save()
     messageObj = Message(channel=channel, owner=user, text=message, number=channel.num_messages)
     messageObj.save()
-    pusherAPI[channel.name].trigger('message',{'message': message})
+    pusherAPI[channel.name].trigger('message',
+                                    {'message': message,
+                                     'owner': messageObj.owner.to_dict(),
+                                     'time':  str(messageObj.time_sent)})
     response['accepted'] = True 
     return JsonResponse(response)

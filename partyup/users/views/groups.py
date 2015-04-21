@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from users.models import User_Profile, Event, Group
+from users.models import User_Profile, Event, Group, Channel
 
 
 def _validate_request(request):
@@ -64,7 +64,10 @@ def create_group(request):
     group.group_members.add(user)
     user.save()
     # Make the chat channel with the group id
-    group.chat_channel = "GroupChat" + str(group.id)
+    channel_name = "GroupChat" + str(group.id)
+    group.chat_channel = channel_name
+    channel = Channel(name=channel_name, group=group)
+    channel.save()
 
     # Grab all of the events from the database
     for num in events_ids:
