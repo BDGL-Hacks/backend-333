@@ -25,7 +25,7 @@ class User_Profile(models.Model):
 
     # Groups the user has been invited to
     groups_invite_list = models.ManyToManyField('Group', related_name='groups_invite_list', blank=True)
-    
+
     # Active groups the users is currently a part of
     groups_current = models.ManyToManyField('Group', related_name='groups_current', blank=True)
 
@@ -96,6 +96,7 @@ class Event(models.Model):
             'attending_list': self.attending_list.all(),
             'id': self.id,
         }
+
     def to_dict_sparse(self):
         return {
             'title': self.title,
@@ -121,6 +122,7 @@ class Group(models.Model):
 
     # Maybe
     picture = None
+
     def __str__(self):
         return '%d %s' % (self.id, self.title)
 
@@ -137,11 +139,14 @@ class Group(models.Model):
             'title': self.title,
             'members': members,
             'events': events,
-        } 
+        }
+
+
 class Channel(models.Model):
     name = models.CharField(max_length=50, null=True)
     group = models.ForeignKey(Group)
     num_messages = models.IntegerField(default=0)
+
 
 class Message(models.Model):
     channel = models.ForeignKey(Channel)
