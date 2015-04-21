@@ -106,6 +106,7 @@ def event_create(request):
 
     event.save()
     response['accepted'] = True
+    response['id'] = event.id
     return JsonResponse(response)
 
 
