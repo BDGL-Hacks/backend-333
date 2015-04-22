@@ -16,8 +16,8 @@ urlpatterns = patterns(
     url(r'^invites/respond', invites.respond_invite),
 
     url(r'^groups/create', groups.create_group, name='create_group'),
-    url(r'^groups/get', groups.group_get),
-    url(r'^groups/getid', groups.group_getid, name='group_getid'),
+    url(r'^groups/get$', groups.group_get),
+    url(r'^groups/getid$', groups.group_getid, name='group_getid'),
     url(r'^groups/invite', invites.group_invite),
     url(r'^groups/messages/post', messages.messages_post, name='messages_post'),
     url(r'^groups/messages/get', messages.messages_get),
@@ -25,7 +25,8 @@ urlpatterns = patterns(
     url(r'^groups/picture/upload', groups.group_picture_upload),
 
     url(r'^events/create', events.event_create, name='create_event'),
-    url(r'^events/get', events.event_get),
+    url(r'^events/get$', events.event_get),
+    url(r'^events/getid$', events.event_getid),
     url(r'^events/picture/delete', events.event_picture_delete),
     url(r'^events/picture/upload', events.event_picture_upload),
     url(r'^events/search', events.event_search),

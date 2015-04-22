@@ -82,7 +82,6 @@ def event_create(request):
     user.event_attending_list.add(event)
     event.attending_list.add(user)
     user.save()
-    
 
     # invite all of the invited users
     for name in invite_list:
@@ -252,6 +251,28 @@ def event_get(request):
         response[t] = _format_search_results(events)
 
     response['accepted'] = True
+    return JsonResponse(response)
+
+
+@csrf_exempt
+def event_getid(request):
+    '''
+    Lets client search for events by id. Returns the requested event if it
+    exists.
+    '''
+    error = _validate_request(request)
+    if error:
+        return error
+
+    if 'event' not in request.POST:
+        return JsonResponse({'accepted': False, 'error': 'MISSING INFO'})
+
+    event = Event.objects.get(pk=request.POST['event'])
+    results = _format_search_results([event])
+    response = {
+        'accepted': True,
+        'event': results[0],
+    }
     return JsonResponse(response)
 
 
