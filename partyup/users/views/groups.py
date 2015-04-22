@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from users.models import User_Profile, Event, Group, Channel
+import pictures
 
 
 def _validate_request(request):
@@ -147,6 +148,7 @@ def group_getid(request):
         return JsonResponse(response)
     return JsonResponse(group.to_dict())
 
+
 @csrf_exempt
 def group_get(request):
     error = _validate_request(request)
@@ -167,5 +169,66 @@ def group_get(request):
         groups = [group.to_dict() for group in result]
         response[t] = groups
             
+    response['accepted'] = True
+    return JsonResponse(response)
+
+
+@csrf_exempt
+def group_picture_upload(request):
+    '''
+    Upload a picture for a given group.
+    '''
+    response = {'accepted': False}
+    error = _validate_request(request)
+    if error:
+        return error
+    if 'group' not in request.POST:
+        response['error'] = 'MISSING INFO'
+        return JsonResponse(response)
+
+    # Check whether given group exists
+    group_id = request.POST['group']
+    group = Group.objects.get(pk=group_id)
+    if not group:
+        response['error'] = 'Invalid group'
+        return JsonResponse(response)
+    if request.user not in [u.user for u in group.group_members.all()]:
+        response['error'] = 'Invalid permissions'
+        return JsonResponse(response)
+    if not request.FILES or not request.FILES['picture']:
+        response['error'] = 'No picture attached'
+        return JsonResponse(response)
+
+    # Upload the picture
+    pictures.upload_group(group, request.FILES['picture'])
+    response['accepted'] = True
+    return JsonResponse(response)
+
+
+@csrf_exempt
+def group_picture_delete(request):
+    '''
+    Delete the given group's picture if it exists.
+    '''
+    response = {'accepted': False}
+    error = _validate_request(request)
+    if error:
+        return error
+    if 'group' not in request.POST:
+        response['error'] = 'MISSING INFO'
+        return JsonResponse(response)
+
+    # Check whether given group exists
+    group_id = request.POST['group']
+    group = Group.objects.get(pk=group_id)
+    if not group:
+        response['error'] = 'Invalid group'
+        return JsonResponse(response)
+    if request.user not in [u.user for u in group.group_members.all()]:
+        response['error'] = 'Invalid permissions'
+        return JsonResponse(response)
+
+    # Delete the picture
+    pictures.delete_group(group)
     response['accepted'] = True
     return JsonResponse(response)

@@ -32,8 +32,8 @@ class User_Profile(models.Model):
     # Inactive groups the user was a part of
     groups_past = models.ManyToManyField('Group', related_name='groups_past', blank=True)
 
-    # Need to figure this out
-    profile_picture = None
+    # Profile picture
+    picture = models.CharField(max_length=40, null=True)
 
     def __str__(self):
         return str(self.user.email) + "\t" + str(self.id)
@@ -44,7 +44,8 @@ class User_Profile(models.Model):
             'id': self.id,
             'username': self.user.email,
             'first_name': self.user.first_name,
-            'last_name': self.user.last_name
+            'last_name': self.user.last_name,
+            'picture': self.picture
         }
 
 
@@ -72,9 +73,10 @@ class Event(models.Model):
     invite_list = models.ManyToManyField(User_Profile, related_name='invite_list')
     attending_list = models.ManyToManyField(User_Profile, related_name='attending_list')
 
+    picture = models.CharField(max_length=40, null=True)
+
     # TODO later
     category = None
-    picture = None
 
     def __str__(self):
         return '%d %s' % (self.id, self.title)
@@ -95,6 +97,7 @@ class Event(models.Model):
             'invite_list': self.invite_list.all(),
             'attending_list': self.attending_list.all(),
             'id': self.id,
+            'picture': self.picture,
         }
 
     def to_dict_sparse(self):
@@ -103,7 +106,7 @@ class Event(models.Model):
             'location_name': self.location_name,
             'time': str(self.time),
             'id': self.id,
-        }    
+        }
 
 
 class Group(models.Model):
@@ -120,8 +123,7 @@ class Group(models.Model):
 
     is_active = models.BooleanField(default=True)
 
-    # Maybe
-    picture = None
+    picture = models.CharField(max_length=40, null=True)
 
     def __str__(self):
         return '%d %s' % (self.id, self.title)
@@ -139,6 +141,7 @@ class Group(models.Model):
             'title': self.title,
             'members': members,
             'events': events,
+            'picture': self.picture,
         }
 
 
@@ -154,4 +157,4 @@ class Message(models.Model):
     owner = models.ForeignKey(User_Profile)
     text = models.CharField(max_length=160, null=True)
     number = models.IntegerField(default=0)
-    picture = None
+    picture = models.CharField(max_length=40, null=True)

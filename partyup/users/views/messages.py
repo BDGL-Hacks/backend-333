@@ -96,7 +96,7 @@ def messages_post(request):
         response['error'] = 'MISSING INFO'
         response['accepted'] = False
         return JsonResponse(response)
-    
+
     group = Group.objects.filter(id=groupid)
     if not group:
         response['error'] = 'INCORRECT ID'
@@ -112,7 +112,8 @@ def messages_post(request):
     channel = group.channel_set.all()[0]
     channel.num_messages += 1
     channel.save()
-    messageObj = Message(channel=channel, owner=user, text=message, number=channel.num_messages)
+    messageObj = Message(channel=channel, owner=user,
+                         text=message, number=channel.num_messages)
     messageObj.save()
     pusherAPI[channel.name].trigger('message',
                                     {'message': message,

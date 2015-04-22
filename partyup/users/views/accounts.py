@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, authenticate
 from hashlib import md5
 from users.models import User_Profile
+import pictures
 
 
 def _validate_request(request):
@@ -33,7 +34,8 @@ def register(request):
     if request.method == 'POST':
         user_data = request.POST
 
-        user_email = user_data.get('email', '')
+        # All emails lowercase
+        user_email = str(user_data.get('email', '')).lower()
         user_fn = user_data.get('first_name', '')
         user_ln = user_data.get('last_name', '')
         user_pswd = user_data.get('password', '')
@@ -173,3 +175,34 @@ def user_batch(request):
         'results': results
     }
     return JsonResponse(response)
+
+
+@csrf_exempt
+def user_picture_upload(request):
+    '''
+    Upload a picture for the given user.
+    '''
+    error = _validate_request(request)
+    if error:
+        return error
+    if not request.FILES or not request.FILES['picture']:
+        message = 'No picture attached'
+        return JsonResponse({'accepted': False, 'error': message})
+
+    # Upload the picture
+    profile = User_Profile.objects.get(user=request.user)
+    pictures.upload_user(profile, request.FILES['picture'])
+    return JsonResponse({'accepted': True})
+
+
+@csrf_exempt
+def user_picture_delete(request):
+    '''
+    Delete the given user's picture.
+    '''
+    error = _validate_request(request)
+    if error:
+        return error
+    profile = User_Profile.objects.get(user=request.user)
+    pictures.delete_user(profile)
+    return JsonResponse({'accepted': True})
