@@ -2,8 +2,8 @@ from datetime import date, datetime
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from pictures import upload_event_picture
 from users.models import Event, User_Profile
+import pictures
 
 
 def _validate_request(request):
@@ -257,25 +257,63 @@ def event_get(request):
 
 
 @csrf_exempt
-def event_update(request):
+def event_picture_upload(request):
     '''
-    Modify event information.
-
-    TODO: flesh this out beyond pictures.
+    Upload a picture for a given event.
     '''
+    response = {'accepted': False}
     error = _validate_request(request)
     if error:
         return error
+    if 'event' not in request.POST:
+        response['error'] = 'MISSING INFO'
+        return JsonResponse(response)
 
+    # Ensure that the given event exists
     event_id = request.POST['event']
     event = Event.objects.get(pk=event_id)
     if not event:
-        return JsonResponse({'accepted': False, 'error': 'Invalid event'})
+        response['error'] = 'Invalid event'
+        return JsonResponse(response)
+    if event.admin.user.id != request.user.id:
+        # Make sure that user is the event's admin
+        response['error'] = 'Invalid permissions'
+        return JsonResponse(response)
+    if not request.FILES or not request.FILES['picture']:
+        response['error'] = 'No picture attached'
+        return JsonResponse(response)
 
     # Update the event's picture
-    if request.FILES and request.FILES['picture']:
-        try:
-            upload_event_picture(request)
-        except (AssertionError) as e:
-            return JsonResponse({'accepted': False, 'error': str(e)})
-    return JsonResponse({'accepted': True})
+    pictures.upload_event(event, request.FILES['picture'])
+    response['accepted'] = True
+    return JsonResponse(response)
+
+
+@csrf_exempt
+def event_picture_delete(request):
+    '''
+    Delete the given event's picture if it exists.
+    '''
+    response = {'accepted': False}
+    error = _validate_request(request)
+    if error:
+        return error
+    if 'event' not in request.POST:
+        response['error'] = 'MISSING INFO'
+        return JsonResponse(response)
+
+    # Ensure that the given event exists
+    event_id = request.POST['event']
+    event = Event.objects.get(pk=event_id)
+    if not event:
+        response['error'] = 'Invalid event'
+        return JsonResponse(response)
+    if event.admin.user.id != request.user.id:
+        # Make sure that user is the event's admin
+        response['error'] = 'Invalid permissions'
+        return JsonResponse(response)
+
+    # Delete the event's picture
+    pictures.delete_event(event)
+    response['accepted'] = True
+    return JsonResponse(response)

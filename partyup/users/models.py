@@ -41,7 +41,8 @@ class User_Profile(models.Model):
             'id': self.id,
             'username': self.user.email,
             'first_name': self.user.first_name,
-            'last_name': self.user.last_name
+            'last_name': self.user.last_name,
+            'picture': self.picture
         }
 
 
@@ -93,6 +94,7 @@ class Event(models.Model):
             'invite_list': self.invite_list.all(),
             'attending_list': self.attending_list.all(),
             'id': self.id,
+            'picture': self.picture,
         }
 
     def to_dict_sparse(self):
@@ -135,6 +137,7 @@ class Group(models.Model):
             'title': self.title,
             'members': members,
             'events': events,
+            'picture': self.picture,
         }
 
 

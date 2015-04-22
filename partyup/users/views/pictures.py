@@ -6,34 +6,12 @@ from base64 import b64encode
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 # from django.conf import settings
-from django.contrib.auth import login, authenticate
 from hashlib import md5
 from users.models import User_Profile, Event, Group
 import os
 
 
-def _validate_picture_request(request):
-    '''
-    Take a django request and check whether it contains the proper
-    information for a picture upload.
-
-    Raise an exception if request is invalid. Return None otherwise.
-    '''
-    # Check that the request is a POST
-    if request.method != 'POST':
-        message = 'NOT A POST REQUEST'
-        raise AssertionError(message)
-    # Check that the user is logged in
-    if not request.user.is_authenticated():
-        message = 'User is not logged in'
-        raise AssertionError(message)
-    if not request.FILES or not request.FILES['picture']:
-        message = 'No picture attached'
-        raise AssertionError(message)
-    return None
-
-
-def _save_picture(f, name):
+def _save_local_picture(f, name):
     '''
     Saves the given file, f, locally with name, "name".
     '''
@@ -44,13 +22,20 @@ def _save_picture(f, name):
             destination.write(chunk)
 
 
-def _delete_picture(name):
+def _delete_local_picture(name):
     '''
     Locally remove the given picture if it exists.
     '''
     safe_name = name.strip('/').strip('\\')
     path = os.path.join(os.getcwd(), 'users/views/temp_pictures', safe_name)
     os.remove(path)
+
+
+def _generate_key(key):
+    '''
+    Returns the unique key generated from given key.
+    '''
+    return b64encode(md5(key).digest())
 
 
 def _upload_picture(picture_type, key, picture):
@@ -75,7 +60,7 @@ def _upload_picture(picture_type, key, picture):
     bucket = conn.get_bucket('partyup')
 
     # Hash for uniqueness
-    unique_key = b64encode(md5(key).digest())
+    unique_key = _generate_key(key)
 
     # Send the picture along to AWS
     key_name = os.path.join(picture_type, unique_key)
@@ -85,24 +70,81 @@ def _upload_picture(picture_type, key, picture):
     return key_name
 
 
-def upload_event_picture(request):
+def _delete_picture(key):
     '''
-    Takes a django request that includes a picture for an event.
+    Deletes the file associated with the given unique key.
     '''
-    _validate_picture_request(request)
-    if not request.POST['event']:
-        # Additional validation
-        raise AssertionError('No event specified')
+    if not key:
+        return
 
-    event_id = request.POST['event']
-    event = Event.objects.get(pk=event_id)
-    if not event:
-        raise AssertionError('Invalid event')
+    conn = S3Connection()
+    bucket = conn.get_bucket('partyup')
+    k = Key(bucket)
+    k.key = key
+    k.delete()
 
-    picture = request.FILES['picture']
+
+def upload_event(event, multipart_file):
+    '''
+    Takes an Event object and the file that was included in a multipart post
+    request.
+    '''
     picture_name = str(event.id) + '.jpg'
-    _save_picture(picture, picture_name)
+    _save_local_picture(multipart_file, picture_name)
     key = _upload_picture('events', str(event.id), picture_name)
+    _delete_local_picture(picture_name)
     event.picture = key
     event.save()
-    _delete_picture(picture_name)
+
+
+def delete_event(event):
+    '''
+    Delete the picture for the given Event object.
+    '''
+    _delete_picture(event.picture)
+    event.picture = None
+    event.save()
+
+
+def upload_user(user_profile, multipart_file):
+    '''
+    Takes a User_Profile object and the file that was included in a multipart
+    post request.
+    '''
+    picture_name = str(user_profile.id) + '.jpg'
+    _save_local_picture(multipart_file, picture_name)
+    key = _upload_picture('users', str(user_profile.id), picture_name)
+    _delete_local_picture(picture_name)
+    user_profile.picture = key
+    user_profile.save()
+
+
+def delete_user(user_profile):
+    '''
+    Delete the picture for the given User_Profile object.
+    '''
+    _delete_picture(user_profile.picture)
+    user_profile.picture = None
+    user_profile.save()
+
+
+def upload_group(group, multipart_file):
+    '''
+    Takes a Group object and the file that was included in a multipart post
+    request.
+    '''
+    picture_name = str(group.id) + '.jpg'
+    _save_local_picture(multipart_file, picture_name)
+    key = _upload_picture('groups', str(group.id), picture_name)
+    _delete_local_picture(picture_name)
+    group.picture = key
+    group.save()
+
+
+def delete_group(group):
+    '''
+    Delete the picture for the given Group object.
+    '''
+    _delete_picture(group.picture)
+    group.picture = None
+    group.save()
