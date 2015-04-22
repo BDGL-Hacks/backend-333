@@ -1,8 +1,9 @@
+from datetime import date, datetime
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from pictures import upload_event_picture
 from users.models import Event, User_Profile
-from datetime import date, datetime
 
 
 def _validate_request(request):
@@ -35,7 +36,7 @@ def event_create(request):
     title, public, age_restrictions, price, invite_list, and time. Of those
     parameters, the only required parameters are title and time.
     '''
-    # intialize the end response and the information for event
+    # initialize the end response and the information for event
     response = {}
     event_data = {}
     error = _validate_request(request)
@@ -155,12 +156,13 @@ def event_search(request):
     This function is a general search across all events in the database.
 
     Takes a POST request that includes information to be searched on.
-    Possible information the requst can include is title, public, location
+    Possible information the request can include is title, public, location
     (not implemented yet), date/time, age, price, category (not implemented
     yet), and description.
 
-    TODO: Modify so it accepts a time parameter that querys just by time of
+    TODO: Modify so it accepts a time parameter that queries just by time of
     day.
+    TODO: Limit number of results returned
     '''
     error = _validate_request(request)
     if error:
@@ -169,7 +171,7 @@ def event_search(request):
     # Parse request and return search results
     query = Event.objects.all()
 
-    # TODO: there should probabily be some kind of sanitization here
+    # TODO: there should probably be some kind of sanitation here
     if 'title' in request.POST:
         query = query.filter(title__icontains=request.POST['title'])
     if 'public' in request.POST:
@@ -181,7 +183,7 @@ def event_search(request):
         # Parse datetime object from request
         # Date should be formatted as follows:
         # YYYYMMDDhhmm
-        yehar = int(request.POST['date'][:4])
+        year = int(request.POST['date'][:4])
         month = int(request.POST['date'][4:6])
         day = int(request.POST['date'][6:8])
         query = query.filter(time__startswith=date(year, month, day))
@@ -246,9 +248,34 @@ def event_get(request):
             return JsonResponse({'accepted': False, 'error': 'Invalid type'})
 
         # Replace the foreign keys in the result with the actual events and
-        # then format those events before returning them to the clien.
+        # then format those events before returning them to the client.
         events = [Event.objects.get(pk=event.id) for event in result]
         response[t] = _format_search_results(events)
 
     response['accepted'] = True
     return JsonResponse(response)
+
+
+@csrf_exempt
+def event_update(request):
+    '''
+    Modify event information.
+
+    TODO: flesh this out beyond pictures.
+    '''
+    error = _validate_request(request)
+    if error:
+        return error
+
+    event_id = request.POST['event']
+    event = Event.objects.get(pk=event_id)
+    if not event:
+        return JsonResponse({'accepted': False, 'error': 'Invalid event'})
+
+    # Update the event's picture
+    if request.FILES and request.FILES['picture']:
+        try:
+            upload_event_picture(request)
+        except (AssertionError) as e:
+            return JsonResponse({'accepted': False, 'error': str(e)})
+    return JsonResponse({'accepted': True})

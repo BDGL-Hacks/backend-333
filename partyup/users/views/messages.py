@@ -7,6 +7,7 @@ from keys.pusherAPI import createPusher
 
 pusherAPI = createPusher()
 
+
 def _validate_request(request):
     '''
     Check that the given request is a POST request and comes from a user that
@@ -26,6 +27,7 @@ def _validate_request(request):
         return JsonResponse(response)
     return None
 
+
 @csrf_exempt
 def messages_get(request):
     error = _validate_request(request)
@@ -42,7 +44,7 @@ def messages_get(request):
         response['error'] = 'MISSING INFO'
         response['accepted'] = False
         return JsonResponse(response)
-    
+
     group = Group.objects.filter(id=groupid)
     if not group:
         response['error'] = 'INCORRECT ID'
@@ -65,15 +67,16 @@ def messages_get(request):
         index = 0
     messagesObj = messagesObj[index:messageID - 1]
     for message in messagesObj:
-        messages.append( {
+        messages.append({
             'id': message.number,
             'message': message.text,
         })
-        response = {
-            'messages':messages,
-            'accepted':True,
-        }
+    response = {
+        'messages': messages,
+        'accepted': True,
+    }
     return JsonResponse(response)
+
 
 @csrf_exempt
 def messages_post(request):
@@ -91,7 +94,7 @@ def messages_post(request):
         response['error'] = 'MISSING INFO'
         response['accepted'] = False
         return JsonResponse(response)
-    
+
     group = Group.objects.filter(id=groupid)
     if not group:
         response['error'] = 'INCORRECT ID'
@@ -107,8 +110,9 @@ def messages_post(request):
     channel = group.channel_set.all()[0]
     channel.num_messages += 1
     channel.save()
-    messageObj = Message(channel=channel, owner=user, text=message, number=channel.num_messages)
+    messageObj = Message(channel=channel, owner=user,
+                         text=message, number=channel.num_messages)
     messageObj.save()
-    pusherAPI[channel.name].trigger('message',{'message': message})
-    response['accepted'] = True 
+    pusherAPI[channel.name].trigger('message', {'message': message})
+    response['accepted'] = True
     return JsonResponse(response)

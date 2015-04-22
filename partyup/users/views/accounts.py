@@ -33,7 +33,8 @@ def register(request):
     if request.method == 'POST':
         user_data = request.POST
 
-        user_email = user_data.get('email', '')
+        # All emails lowercase
+        user_email = str(user_data.get('email', '')).lower()
         user_fn = user_data.get('first_name', '')
         user_ln = user_data.get('last_name', '')
         user_pswd = user_data.get('password', '')

@@ -36,7 +36,13 @@ def add_users():
         }
 
         r = requests.post(server + '/users/register/', data=reg_data)
-        response = r.json()
+        try:
+            response = r.json()
+        except (ValueError) as e:
+            err = open('debug.html', 'w')
+            err.write(r.text)
+            err.close()
+            raise e
 
         global cookies
         if (response['accepted'] is False and
