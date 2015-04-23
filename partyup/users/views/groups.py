@@ -45,13 +45,13 @@ def create_group(request):
 
     # grab the post data
     # Split the first two by commas
-    events_ids = request.POST.get('events_ids', '').split(',')
+    event_ids = request.POST.get('event_ids', '').split(',')
     invite_list = request.POST.get('invite_list', '').split(',')
 
     group_name = request.POST.get('title', '')
 
     # Check for mandatory data
-    if not events_ids or not group_name:
+    if not event_ids or not group_name:
         response['error'] = 'MISSING INFO'
         response['accepted'] = False
         return JsonResponse(response)
@@ -71,7 +71,7 @@ def create_group(request):
     channel.save()
 
     # Grab all of the events from the database
-    for num in events_ids:
+    for num in event_ids:
         # Get the proper id
         event_id = -1
         try:
@@ -81,7 +81,7 @@ def create_group(request):
             response['accepted'] = False
             group.delete()
             return JsonResponse(response)
-            
+
         e = Event.objects.filter(id=event_id)
 
         # return false if the event doesn't exist
@@ -168,7 +168,7 @@ def group_get(request):
             return JsonResponse({'accepted': False, 'error': 'Invalid type'})
         groups = [group.to_dict() for group in result]
         response[t] = groups
-            
+
     response['accepted'] = True
     return JsonResponse(response)
 
