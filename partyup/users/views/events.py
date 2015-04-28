@@ -268,10 +268,24 @@ def event_getid(request):
         return JsonResponse({'accepted': False, 'error': 'MISSING INFO'})
 
     event = Event.objects.get(pk=request.POST['event'])
+    if not event:
+        return JsonResponse({'accepted': False, 'error': 'WRONG EVENT ID'})
+
     results = _format_search_results([event])
+
+    # find a group associated with the event 
+    user = request.user.user_profile
+    groupsObj = user.groups_current 
+    groupsObj = groupsObj.filter(events__id__exact=event.id)
+    groupsObj = groupsObj.all()
+    groups = []
+    for group in groupsObj:
+        groups.append({'title': group.title, 'id': group.id})
+
     response = {
         'accepted': True,
         'event': results[0],
+        'groups': groups,
     }
     return JsonResponse(response)
 
