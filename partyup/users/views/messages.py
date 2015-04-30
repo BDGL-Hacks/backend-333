@@ -65,7 +65,7 @@ def messages_get(request):
     index = messageID - 10
     if index < 0:
         index = 0
-    messagesObj = messagesObj[index:messageID - 1]
+    messagesObj = messagesObj[index:messageID]
     for message in messagesObj:
         messages.append({
             'id': message.number,
@@ -74,8 +74,9 @@ def messages_get(request):
             'time': message.time_sent,
         })
     response = {
-        'messages': messages,
+        'results': messages,
         'accepted': True,
+        'userID': user.id,
     }
     return JsonResponse(response)
 
