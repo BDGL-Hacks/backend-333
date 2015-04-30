@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from users.models import Event, User_Profile, Group
 from datetime import date, datetime
 
+
 def _validate_request(request):
     '''
     Check that the given request is a POST request and comes from a user that
@@ -22,6 +23,7 @@ def _validate_request(request):
         response['accepted'] = False
         return JsonResponse(response)
     return None
+
 
 @csrf_exempt
 def respond_invite(request):
@@ -42,14 +44,13 @@ def respond_invite(request):
         response['accepted'] = False
         return JsonResponse(response)
 
-    
     if obj_type == 'event':
-        event = user.event_invite_list.filter(id=obj_id)    
+        event = user.event_invite_list.filter(id=obj_id)
         if not event:
             response['error'] = 'You have already responded to this request'
             response['accepted'] = False
             return JsonResponse(response)
-            
+
         event = event[0]
         user.event_invite_list.remove(event)
         if accept == 'True' or accept == 'true':
@@ -66,6 +67,8 @@ def respond_invite(request):
         user.groups_invite_list.remove(group)
         if accept == 'True' or accept == 'true':
             user.groups_current.add(group)
+            group.group_members.add(user)
+            group.save()
         user.save()
     else:
         response['error'] = 'Wrong object type'
@@ -74,7 +77,8 @@ def respond_invite(request):
 
     response['accepted'] = True
     return JsonResponse(response)
-        
+
+
 @csrf_exempt
 def group_invite(request):
     error = _validate_request(request)
@@ -122,7 +126,8 @@ def group_invite(request):
 
     response['accepted'] = True
     return JsonResponse(response)
-    
+
+
 @csrf_exempt
 def event_invite(request):
     error = _validate_request(request)
@@ -158,7 +163,7 @@ def event_invite(request):
             response['error'] = 'You do not have permission to add to this event'
             response['accepted'] = False
             return JsonResponse(response)
-            
+
     invitees = inviteeIDs.split(',')
     for i in invitees:
         invitee = User_Profile.objects.filter(id=i)
@@ -176,4 +181,3 @@ def event_invite(request):
 
     response['accepted'] = True
     return JsonResponse(response)
-        
