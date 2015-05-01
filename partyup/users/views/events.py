@@ -95,27 +95,6 @@ def event_create(request):
     if not invite_response['accepted']:
         return JsonResponse(invite_response)
 
-#    # invite all of the invited users
-#    for name in invite_list:
-#        # ignore blank entries
-#        if not name:
-#            continue
-#
-#        u = User.objects.filter(email=name)
-#        if u:
-#            u = u[0].user_profile
-#        else:
-#            # Error if user doesn't exist. In theory, this case should only
-#            # happen is someone is trying to hack the API.
-#            response['error'] = 'One of your invitees is not a user'
-#            response['accepted'] = False
-#            event.delete()
-#            return JsonResponse(response)
-#
-#        event.invite_list.add(u)
-#        u.event_invite_list.add(event)
-#        u.save()
-
     event.save()
     response['accepted'] = True
     response['id'] = event.id
@@ -253,7 +232,7 @@ def event_get(request):
         elif t == 'created':
             result = Event.objects.all().filter(created_by=user)
         elif t == 'invited':
-            result = user.invite_list.all()
+            result = user.event_invite_list.all()
         else:
             return JsonResponse({'accepted': False, 'error': 'Invalid type'})
 
@@ -285,9 +264,9 @@ def event_getid(request):
 
     results = _format_search_results([event])
 
-    # find a group associated with the event 
+    # find a group associated with the event
     user = request.user.user_profile
-    groupsObj = user.groups_current 
+    groupsObj = user.groups_current
     groupsObj = groupsObj.filter(events__id__exact=event.id)
     groupsObj = groupsObj.all()
     groups = []
