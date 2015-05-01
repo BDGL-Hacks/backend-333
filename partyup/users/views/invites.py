@@ -28,42 +28,52 @@ def _validate_request(request):
 
 @csrf_exempt
 def respond_invite(request):
+    '''
+    A view to respond to an invite
+    POST request needs
+       obj_type = {event, group}
+       accept   = {true, false}
+    '''
     error = _validate_request(request)
     if error:
         return error
 
+    # Grabs the post data
     data = request.POST
     user = request.user.user_profile
     response = {}
-
     obj_type = data.get("obj_type", "")
     accept = data.get("accept", "")
     obj_id = data.get("obj_id", "")
 
+    # Checks for missing info
     if not obj_type or not obj_id or not accept:
         response['error'] = 'Missing information'
         response['accepted'] = False
         return JsonResponse(response)
 
+    # Responds to an event invite
     if obj_type == 'event':
         event = user.event_invite_list.filter(id=obj_id)
         if not event:
             response['error'] = 'You have already responded to this request'
             response['accepted'] = False
             return JsonResponse(response)
-
         event = event[0]
         user.event_invite_list.remove(event)
         if accept == 'True' or accept == 'true':
             user.event_attending_list.add(event)
+            event.attending_list.add(user)
+            event.save()
         user.save()
+
+    # Responds to a group invite
     elif obj_type == 'group':
         group = user.groups_invite_list.filter(id=obj_id)
         if not group:
             response['error'] = 'You have already responded to this request'
             response['accepted'] = False
             return JsonResponse(response)
-
         group = group[0]
         user.groups_invite_list.remove(group)
         if accept == 'True' or accept == 'true':
@@ -71,17 +81,23 @@ def respond_invite(request):
             group.group_members.add(user)
             group.save()
         user.save()
+
+    # Responds to an incorrect invite
     else:
         response['error'] = 'Wrong object type'
         response['accepted'] = False
         return JsonResponse(response)
 
+    # Invite proccessed correctly
     response['accepted'] = True
     return JsonResponse(response)
 
 
 @csrf_exempt
 def group_invite_view(request):
+    '''
+    The view to invite users to a group
+    '''
     error = _validate_request(request)
     if error:
         return error
@@ -91,7 +107,15 @@ def group_invite_view(request):
     return JsonResponse(group_invite(info))
 
 def group_invite(info):
-
+    '''
+    Helper method that invites the list of users to a group.
+    Info should be a dictionary with
+    data = a dictionary with group, invitee
+    (invitee should be comma seperated ids of User_Profiles)
+    (group should be an group id)
+    and
+    user = the user_profile that sent the request
+    '''
     data = info['data']
     user = info['user']
     response = {}
@@ -140,6 +164,15 @@ def group_invite(info):
     return response
 
 def event_invite(info):
+    '''
+    Helper method that invites the list of users to an event.
+    Info should be a dictionary with
+    data = a dictionary with event, invitee
+    (invitee should be comma seperated ids of User_Profiles)
+    (event should be an event id)
+    and
+    user = the user_profile that sent the request
+    '''
     data = info['data']
     user = info['user']
     response = {}
@@ -172,14 +205,9 @@ def event_invite(info):
         if not event.admin.id == user.id:
             response['error'] = 'You do not have permission to add to this event'
             response['accepted'] = False
-<<<<<<< HEAD
             return response
     
     # Send invites to everyone
-=======
-            return JsonResponse(response)
-
->>>>>>> fbd5ae56eb8174fc1eca98f4d4a06207048df4ea
     invitees = inviteeIDs.split(',')
     inviteeSet = User_Profile.objects.filter(id__in=invitees)
     for invitee in inviteeSet:
@@ -196,11 +224,13 @@ def event_invite(info):
 
     # return successfully
     response['accepted'] = True
-<<<<<<< HEAD
     return response
         
 @csrf_exempt
 def event_invite_view(request):
+    '''
+    The view to invite users to an event
+    '''
     error = _validate_request(request)
     if error:
         return error
@@ -208,6 +238,3 @@ def event_invite_view(request):
             'user': request.user.user_profile,
             }
     return JsonResponse(event_invite(info))
-=======
-    return JsonResponse(response)
->>>>>>> fbd5ae56eb8174fc1eca98f4d4a06207048df4ea
