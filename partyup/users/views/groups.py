@@ -28,6 +28,12 @@ def _validate_request(request):
 
 @csrf_exempt
 def create_group(request):
+    '''
+    Creates a group.
+    Mandatory Data
+       event_ids (comma seperated ids)
+       invite_list (comma seperated ids)
+    '''
     response = {}
     # Verify that we are posting data
     if request.method != 'POST':
@@ -114,6 +120,10 @@ def create_group(request):
 
 @csrf_exempt
 def group_getid(request):
+    '''
+    gets a single group by its id.
+    The user must be a part of the group for this/
+    '''
     error = _validate_request(request)
     if error:
         return error
@@ -127,21 +137,30 @@ def group_getid(request):
         response['accepted'] = False
         return JsonResponse(response)
 
+    # Get the group Object
     group = Group.objects.filter(id=groupid)
     if not group:
         response['error'] = 'INCORRECT ID'
         response['accepted'] = False
         return JsonResponse(response)
     group = group[0]
+    # Check for Permission
     if not group.group_members.filter(id=user.id):
         response['error'] = 'NEED PERMISSION FOR GROUP'
         response['accepted'] = False
         return JsonResponse(response)
+
+    # Return sucessfully
     return JsonResponse(group.to_dict())
 
 
 @csrf_exempt
 def group_get(request):
+    '''
+    Get all relevent groups
+    Can get attending, created, or invited groups
+    Groups chosen by 'type' POST data
+    '''
     error = _validate_request(request)
     if error:
         return error
