@@ -120,5 +120,5 @@ def messages_post(request):
                                     {'message': message,
                                      'owner': messageObj.owner.to_dict(),
                                      'time':  str(messageObj.time_sent)})
-    response['accepted'] = True 
+    response['accepted'] = True
     return JsonResponse(response)
