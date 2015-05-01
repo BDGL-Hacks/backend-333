@@ -23,6 +23,7 @@ urlpatterns = patterns(
     url(r'^groups/messages/get', messages.messages_get),
     url(r'^groups/picture/delete', groups.group_picture_delete),
     url(r'^groups/picture/upload', groups.group_picture_upload),
+    url(r'^groups/addevent', groups.group_add_events),
 
     url(r'^events/create', events.event_create, name='create_event'),
     url(r'^events/get/?$', events.event_get),

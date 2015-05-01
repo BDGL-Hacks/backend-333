@@ -152,7 +152,11 @@ def group_invite(info):
         return response
 
     # Send invites to everyone
-    invitees = inviteeIDs.split(',')
+    if inviteeIDs:
+        invitees = inviteeIDs.split(',')
+    # have an impossible id if no invites
+    else:
+        invitees = [-1]
     inviteeSet = User_Profile.objects.filter(id__in=invitees)
     for invitee in inviteeSet:
         invitee.groups_invite_list.add(group)
@@ -188,6 +192,7 @@ def event_invite(info):
     # Check for proper POST data
     eventID = data.get("event", '')
     inviteeIDs = data.get('invitee', '')
+
     try:
         eventID = int(eventID)
     except ValueError:
@@ -216,7 +221,12 @@ def event_invite(info):
             return response
     
     # Send invites to everyone
-    invitees = inviteeIDs.split(',')
+    if inviteeIDs:
+        invitees = inviteeIDs.split(',')
+    # if no invites then have an impossible id
+    else:
+        invitees = [-1]
+
     inviteeSet = User_Profile.objects.filter(id__in=invitees)
     for invitee in inviteeSet:
         invitee.event_invite_list.add(event)

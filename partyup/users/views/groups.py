@@ -51,7 +51,7 @@ def create_group(request):
     user = request.user.user_profile
 
     # grab the post data
-    event_ids = request.POST.get('event_ids', '').split(',')
+    event_ids = request.POST.get('event_ids', '')
     invite_list = request.POST.get('invite_list', '')
 
     group_name = request.POST.get('title', '')
@@ -62,6 +62,8 @@ def create_group(request):
         response['accepted'] = False
         return JsonResponse(response)
 
+    # Split the ids
+    event_ids = event_ids.split(',')
     # Create and save the group
     group = Group(created_by=user, title=group_name)
     group.save()
@@ -81,6 +83,9 @@ def create_group(request):
     events = Event.objects.filter(id__in=event_ids)
     for event in events:
         group.events.add(event)
+    
+    # make the current event the most recent
+    group.current_event = events.earliest('time')
 
     # invite all of the users
     info = {'data': {'group':group.id,
@@ -182,6 +187,49 @@ def group_get(request):
     response['accepted'] = True
     return JsonResponse(response)
 
+@csrf_exempt
+def group_add_events(request):
+    response = {'accepted': False}
+    error = _validate_request(request)
+    if error:
+        return error
+    
+    user = request.user.user_profile
+
+    groupID = request.POST.get('group', '')
+    eventIDs = request.POST.get('eventIDs', '')
+    
+    if not eventIDs or not groupID:
+        response['error'] = 'MISSING INFO'
+        return JsonResponse(response)
+
+    # Check for group's existence
+    group = Group.objects.filter(id=groupID)
+    if not group:
+        response['error'] = 'The group requested does not exist'
+        response['accepted'] = False
+        return response
+    group = group[0]
+
+    # Check for proper permission
+    if not group.group_members.filter(id=user.id):
+        response['error'] = 'You do not have permission to add to this group'
+        response['accepted'] = False
+        return response
+    
+    event_ids = eventIDs.split(',')
+    # grab events and add them to the group
+    events = Event.objects.filter(id__in=event_ids)
+    for event in events:
+        group.events.add(event)
+
+    # change the group's current events
+    group.current_event = group.events.earliest('time')
+    group.save()
+
+    # return successfully
+    response['accepted'] = True
+    return JsonResponse(response)
 
 @csrf_exempt
 def group_picture_upload(request):
