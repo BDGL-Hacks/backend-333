@@ -95,27 +95,6 @@ def event_create(request):
     if not invite_response['accepted']:
         return JsonResponse(invite_response)
 
-#    # invite all of the invited users
-#    for name in invite_list:
-#        # ignore blank entries
-#        if not name:
-#            continue
-#
-#        u = User.objects.filter(email=name)
-#        if u:
-#            u = u[0].user_profile
-#        else:
-#            # Error if user doesn't exist. In theory, this case should only
-#            # happen is someone is trying to hack the API.
-#            response['error'] = 'One of your invitees is not a user'
-#            response['accepted'] = False
-#            event.delete()
-#            return JsonResponse(response)
-#
-#        event.invite_list.add(u)
-#        u.event_invite_list.add(event)
-#        u.save()
-
     event.save()
     response['accepted'] = True
     response['id'] = event.id
@@ -253,7 +232,7 @@ def event_get(request):
         elif t == 'created':
             result = Event.objects.all().filter(created_by=user)
         elif t == 'invited':
-            result = user.invite_list.all()
+            result = user.event_invite_list.all()
         else:
             return JsonResponse({'accepted': False, 'error': 'Invalid type'})
 
@@ -285,9 +264,9 @@ def event_getid(request):
 
     results = _format_search_results([event])
 
-    # find a group associated with the event 
+    # find a group associated with the event
     user = request.user.user_profile
-    groupsObj = user.groups_current 
+    groupsObj = user.groups_current
     groupsObj = groupsObj.filter(events__id__exact=event.id)
     groupsObj = groupsObj.all()
     groups = []
@@ -300,6 +279,29 @@ def event_getid(request):
         'groups': groups,
     }
     return JsonResponse(response)
+
+
+@csrf_exempt
+def event_getattending(request):
+    '''
+    Return a list of the people attending a given event.
+
+    Takes a POST request that contains the id of the desired event, and returns
+    a JSON that contains a list of the users attending the event.
+    '''
+    error = _validate_request(request)
+    if error:
+        return error
+
+    event_id = request.POST.get('event', '')
+    if not event_id:
+        return JsonResponse({'accepted': False, 'error': 'MISSING INFO'})
+    event = Event.objects.get(pk=event_id)
+    result = _format_search_results([event])[0]
+    return JsonResponse({
+        'accepted': True,
+        'attending_list': result['attending_list'],
+    })
 
 
 @csrf_exempt
