@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
-
+from push_notifications.models import APNSDevice
 
 # Additional information about users that is not needed at registration
 class User_Profile(models.Model):
@@ -34,6 +34,9 @@ class User_Profile(models.Model):
 
     # Profile picture
     picture = models.CharField(max_length=40, null=True)
+    
+    # The device needed to send push notifications
+    device = models.ForeignKey(APNSDevice, null=True, blank=True)
 
     def __str__(self):
         return str(self.user.email) + "\t" + str(self.id)

@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, authenticate
 from hashlib import md5
 from users.models import User_Profile
+from users.views.push import add_device
 import pictures
 
 
@@ -94,6 +95,7 @@ def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username', '')
         password = request.POST.get('password', '')
+        deviceID = request.POST.get('deviceID', '')
         if not username or not password:
             response['error'] = 'MISSING INFO'
             response['accepted'] = False
@@ -104,6 +106,14 @@ def login_view(request):
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
+                
+                # Save their IOS device
+                if deviceID:
+                    error = add_device(deviceID, user.user_profile)
+                    if error:
+                        return error
+                
+                # Finally log them in
                 login(request, user)
                 response['accepted'] = True
                 return JsonResponse(response)

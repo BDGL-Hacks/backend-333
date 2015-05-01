@@ -37,7 +37,12 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
+    'push_notifications',
 )
+
+PUSH_NOTIFICATIONS_SETTINGS = {
+    "APNS_CERTIFICATE": "pushInfo/ck.pem",
+}
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
