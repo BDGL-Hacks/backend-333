@@ -26,6 +26,7 @@ urlpatterns = patterns(
 
     url(r'^events/create', events.event_create, name='create_event'),
     url(r'^events/get/?$', events.event_get),
+    url(r'^events/getattending/?$', events.event_getattending),
     url(r'^events/getid/?$', events.event_getid),
     url(r'^events/picture/delete', events.event_picture_delete),
     url(r'^events/picture/upload', events.event_picture_upload),

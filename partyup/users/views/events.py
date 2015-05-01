@@ -291,6 +291,29 @@ def event_getid(request):
 
 
 @csrf_exempt
+def event_getattending(request):
+    '''
+    Return a list of the people attending a given event.
+
+    Takes a POST request that contains the id of the desired event, and returns
+    a JSON that contains a list of the users attending the event.
+    '''
+    error = _validate_request(request)
+    if error:
+        return error
+
+    event_id = request.POST.get('event', '')
+    if not event_id:
+        return JsonResponse({'accepted': False, 'error': 'MISSING INFO'})
+    event = Event.objects.get(pk=event_id)
+    result = _format_search_results([event])[0]
+    return JsonResponse({
+        'accepted': True,
+        'attending_list': result['attending_list'],
+    })
+
+
+@csrf_exempt
 def event_picture_upload(request):
     '''
     Upload a picture for a given event.
