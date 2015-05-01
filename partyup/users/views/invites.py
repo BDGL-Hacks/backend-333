@@ -5,6 +5,7 @@ from users.models import Event, User_Profile, Group
 from datetime import date, datetime
 from push import send_group_message
 
+
 def _validate_request(request):
     '''
     Check that the given request is a POST request and comes from a user that
@@ -23,6 +24,7 @@ def _validate_request(request):
         response['accepted'] = False
         return JsonResponse(response)
     return None
+
 
 @csrf_exempt
 def respond_invite(request):
@@ -43,14 +45,13 @@ def respond_invite(request):
         response['accepted'] = False
         return JsonResponse(response)
 
-    
     if obj_type == 'event':
-        event = user.event_invite_list.filter(id=obj_id)    
+        event = user.event_invite_list.filter(id=obj_id)
         if not event:
             response['error'] = 'You have already responded to this request'
             response['accepted'] = False
             return JsonResponse(response)
-            
+
         event = event[0]
         user.event_invite_list.remove(event)
         if accept == 'True' or accept == 'true':
@@ -67,6 +68,8 @@ def respond_invite(request):
         user.groups_invite_list.remove(group)
         if accept == 'True' or accept == 'true':
             user.groups_current.add(group)
+            group.group_members.add(user)
+            group.save()
         user.save()
     else:
         response['error'] = 'Wrong object type'
@@ -75,7 +78,8 @@ def respond_invite(request):
 
     response['accepted'] = True
     return JsonResponse(response)
-        
+
+
 @csrf_exempt
 def group_invite_view(request):
     error = _validate_request(request)
@@ -134,7 +138,6 @@ def group_invite(info):
     # return successfully
     response['accepted'] = True
     return response
-    
 
 def event_invite(info):
     data = info['data']
@@ -169,9 +172,14 @@ def event_invite(info):
         if not event.admin.id == user.id:
             response['error'] = 'You do not have permission to add to this event'
             response['accepted'] = False
+<<<<<<< HEAD
             return response
     
     # Send invites to everyone
+=======
+            return JsonResponse(response)
+
+>>>>>>> fbd5ae56eb8174fc1eca98f4d4a06207048df4ea
     invitees = inviteeIDs.split(',')
     inviteeSet = User_Profile.objects.filter(id__in=invitees)
     for invitee in inviteeSet:
@@ -188,6 +196,7 @@ def event_invite(info):
 
     # return successfully
     response['accepted'] = True
+<<<<<<< HEAD
     return response
         
 @csrf_exempt
@@ -199,3 +208,6 @@ def event_invite_view(request):
             'user': request.user.user_profile,
             }
     return JsonResponse(event_invite(info))
+=======
+    return JsonResponse(response)
+>>>>>>> fbd5ae56eb8174fc1eca98f4d4a06207048df4ea
