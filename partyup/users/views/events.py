@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from users.models import Event, User_Profile
+from invites import event_invite
 import pictures
 
 
@@ -57,7 +58,7 @@ def event_create(request):
     event_data['price'] = data.get('price', 0)
     event_data['location_name'] = data.get('location_name', '')
     # split the invite list by commas
-    invite_list = data.get('invite_list', '').split(',')
+    invite_list = data.get('invite_list', '')
     time = data.get('time', '')
 
     # check for missing POST information
@@ -69,6 +70,7 @@ def event_create(request):
     # change time format
     # The time included in the POST request should take the form
     # YYYYMMDDhhmm
+    print (time)
     event_data['time'] = datetime(int(time[0:4]), int(time[4:6]),
                                   int(time[6:8]), int(time[8:10]),
                                   int(time[10:12]))
@@ -83,26 +85,36 @@ def event_create(request):
     event.attending_list.add(user)
     user.save()
 
-    # invite all of the invited users
-    for name in invite_list:
-        # ignore blank entries
-        if not name:
-            continue
+    # invite the users
+    info = {'data': {'event': event.id,
+                     'invitee': invite_list
+                     },
+            'info': user
+            }
+    invite_response = event_invite(info)
+    if not invite_response['accepted']:
+        return JsonResponse(invite_response)
 
-        u = User.objects.filter(email=name)
-        if u:
-            u = u[0].user_profile
-        else:
-            # Error if user doesn't exist. In theory, this case should only
-            # happen is someone is trying to hack the API.
-            response['error'] = 'One of your invitees is not a user'
-            response['accepted'] = False
-            event.delete()
-            return JsonResponse(response)
-
-        event.invite_list.add(u)
-        u.event_invite_list.add(event)
-        u.save()
+#    # invite all of the invited users
+#    for name in invite_list:
+#        # ignore blank entries
+#        if not name:
+#            continue
+#
+#        u = User.objects.filter(email=name)
+#        if u:
+#            u = u[0].user_profile
+#        else:
+#            # Error if user doesn't exist. In theory, this case should only
+#            # happen is someone is trying to hack the API.
+#            response['error'] = 'One of your invitees is not a user'
+#            response['accepted'] = False
+#            event.delete()
+#            return JsonResponse(response)
+#
+#        event.invite_list.add(u)
+#        u.event_invite_list.add(event)
+#        u.save()
 
     event.save()
     response['accepted'] = True

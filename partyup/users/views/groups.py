@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from users.models import User_Profile, Event, Group, Channel
+from invites import group_invite
 import pictures
 
 
@@ -44,9 +45,8 @@ def create_group(request):
     user = request.user.user_profile
 
     # grab the post data
-    # Split the first two by commas
     event_ids = request.POST.get('event_ids', '').split(',')
-    invite_list = request.POST.get('invite_list', '').split(',')
+    invite_list = request.POST.get('invite_list', '')
 
     group_name = request.POST.get('title', '')
 
@@ -64,57 +64,48 @@ def create_group(request):
     user.groups_current.add(group)
     group.group_members.add(user)
     user.save()
+
     # Make the chat channel with the group id
     channel_name = "GroupChat" + str(group.id)
     group.chat_channel = channel_name
     channel = Channel(name=channel_name, group=group)
     channel.save()
+    
+    # add all events to the group
+    events = Event.objects.filter(id__in=event_ids)
+    for event in events:
+        group.events.add(event)
 
-    # Grab all of the events from the database
-    for num in event_ids:
-        # Get the proper id
-        event_id = -1
-        try:
-            event_id = int(num)
-        except ValueError:
-            response['error'] = 'Your events are not all numbers'
-            response['accepted'] = False
-            group.delete()
-            return JsonResponse(response)
+    # invite all of the users
+    info = {'data': {'group':group.id,
+                     'invitee': invite_list,
+                     },
+            'user': user
+            }
+    invite_response = group_invite(info)
+    if not invite_response['accepted']:
+        return JsonResponse(invite_response)
 
-        e = Event.objects.filter(id=event_id)
-
-        # return false if the event doesn't exist
-        if not e:
-            response['error'] = 'One of your events is not correct'
-            response['accepted'] = False
-
-            # delete the group (TODO: check to make sure nothing is dangling)
-            group.delete()
-            return JsonResponse(response)
-
-        group.events.add(e[0])
-
-    # grab all of the User_Profiles to be invited
-    for name in invite_list:
-        if not name:
-            continue
-
-        # get the django User object
-        u = User.objects.filter(email=name)
-
-        # Get the actual User_Profile object
-        if u:
-            u = u[0].user_profile
-        if not u:
-            response['error'] = 'One of your invitees is not a user'
-            response['accepted'] = False
-            group.delete()
-            return JsonResponse(response)
-
-        group.invited_members.add(u)
-        u.groups_invite_list.add(group)
-        u.save()
+#    # grab all of the User_Profiles to be invited
+#    for name in invite_list:
+#        if not name:
+#            continue
+#
+#        # get the django User object
+#        u = User.objects.filter(email=name)
+#
+#        # Get the actual User_Profile object
+#        if u:
+#            u = u[0].user_profile
+#        if not u:
+#            response['error'] = 'One of your invitees is not a user'
+#            response['accepted'] = False
+#            group.delete()
+#            return JsonResponse(response)
+#
+#        group.invited_members.add(u)
+#        u.groups_invite_list.add(group)
+#        u.save()
 
     group.save()
     response['accepted'] = True

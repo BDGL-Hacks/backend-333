@@ -41,7 +41,7 @@ INSTALLED_APPS = (
 )
 
 PUSH_NOTIFICATIONS_SETTINGS = {
-    "APNS_CERTIFICATE": "pushInfo/ck.pem",
+    "APNS_CERTIFICATE": "pushInfo/ck.nokey.pem",
 }
 
 MIDDLEWARE_CLASSES = (

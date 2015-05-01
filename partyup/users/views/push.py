@@ -21,3 +21,21 @@ def add_device(deviceID, user):
         return JsonResponse({'error': "Duplicate Device ID",
             'accepted': False})
 
+def send_group_message(users, message, badge=None, extra=None):
+    devices = APNSDevice.objects.filter(id__in=users.values('device_id'))
+    for device in devices:
+        device.send_message(message,badge=badge,extra=extra)
+
+def send_message(user, message, badge=None, extra=None):
+    device = user.device
+    if not badge and extra:
+        device.send_message(message,extra=extra)
+    if badge and not extra:
+        device.send_message(message,badge=badge)
+    if badge and extra:
+        device.send_message(message,extra=extra, badge=badge)
+    if not badge and not extra:
+        device.send_message(message)
+
+
+
