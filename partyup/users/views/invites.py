@@ -60,11 +60,15 @@ def respond_invite(request):
             response['accepted'] = False
             return JsonResponse(response)
         event = event[0]
+        # Remove user/event from invite lists
         user.event_invite_list.remove(event)
+        event.invite_list.remove(user)
+        # Accept on both sides
         if accept == 'True' or accept == 'true':
             user.event_attending_list.add(event)
             event.attending_list.add(user)
-            event.save()
+        # Save both event/user
+        event.save()
         user.save()
 
     # Responds to a group invite
@@ -75,11 +79,15 @@ def respond_invite(request):
             response['accepted'] = False
             return JsonResponse(response)
         group = group[0]
+        # Remove user/group from invite lists
         user.groups_invite_list.remove(group)
+        group.invited_members.remove(user)
+        # Accept on both sides
         if accept == 'True' or accept == 'true':
             user.groups_current.add(group)
             group.group_members.add(user)
-            group.save()
+        # save both group/user
+        group.save()
         user.save()
 
     # Responds to an incorrect invite
