@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'users',
     'push_notifications',
+    'web',
 )
 
 PUSH_NOTIFICATIONS_SETTINGS = {

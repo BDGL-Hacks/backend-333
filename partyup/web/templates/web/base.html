@@ -1,0 +1,20 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}PartyUp{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'web/base.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+<!-- Need real nav bar -->
+<div id="nav">
+    <h1>PartyUp</h1>
+    <a id="login">Log in</a>
+</div>
+    {% block content %}{% endblock %}
+</body>
+</html>
