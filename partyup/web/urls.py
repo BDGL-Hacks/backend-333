@@ -4,5 +4,6 @@ from web import views
 
 urlpatterns = patterns(
     '',
-    url(r'', views.homepage),
+    url(r'groups/home/', views.groups_home),
+    url(r'$', views.homepage),
 )

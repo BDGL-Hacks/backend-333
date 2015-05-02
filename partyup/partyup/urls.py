@@ -6,5 +6,5 @@ urlpatterns = patterns(
     url(r'^admin/', include(admin.site.urls)),
 
     url(r'^api/', include('users.urls')),
-    url(r'^$', include('web.urls')),
+    url(r'^web/', include('web.urls')),
 )

@@ -1,0 +1,18 @@
+body {
+    color: #332F3E;
+    margin: 0;
+    font-family: 'Roboto Slab', serif;
+}
+
+.logo {
+    position: fixed;
+    z-index: 1000;
+    font-family: 'Rancho', cursive;
+    padding-left: 10%;
+    font-size: 150px;
+    margin: auto;
+    background: #80C8B5;
+    width: 100%;
+    border-bottom-style: solid;
+    border-width: 7px;
+}
