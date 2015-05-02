@@ -2,6 +2,7 @@ from push_notifications.models import APNSDevice
 from django.http import JsonResponse
 from django.db import IntegrityError
 
+
 def add_device(deviceID, user):
     ''' 
     Add a phone device to a user.
@@ -9,7 +10,7 @@ def add_device(deviceID, user):
     the id.
     '''
     try:
-        if not user.device: 
+        if not user.device:
             # Create the device
             device = APNSDevice(name=user.user.email, registration_id=deviceID)
             device.save()
@@ -18,12 +19,13 @@ def add_device(deviceID, user):
             user.device = device
             user.save()
         else:
-            user.device.registration_id=deviceID
+            user.device.registration_id = deviceID
             user.device.save()
     # Check if the id exists for another user
     except IntegrityError:
         return JsonResponse({'error': "Duplicate Device ID",
-            'accepted': False})
+                            'accepted': False})
+
 
 def send_group_message(users, message, badge=None, extra=None):
     '''
@@ -47,13 +49,10 @@ def send_message(user, message, badge=None, extra=None):
     '''
     device = user.device
     if not badge and extra:
-        device.send_message(message,extra=extra)
+        device.send_message(message, extra=extra)
     if badge and not extra:
-        device.send_message(message,badge=badge)
+        device.send_message(message, badge=badge)
     if badge and extra:
-        device.send_message(message,extra=extra, badge=badge)
+        device.send_message(message, extra=extra, badge=badge)
     if not badge and not extra:
         device.send_message(message)
-
-
-

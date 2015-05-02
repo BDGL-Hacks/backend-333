@@ -106,13 +106,13 @@ def login_view(request):
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
-                
+
                 # Save their IOS device
                 if deviceID:
                     error = add_device(deviceID, user.user_profile)
                     if error:
                         return error
-                
+
                 # Finally log them in
                 login(request, user)
                 response['accepted'] = True
