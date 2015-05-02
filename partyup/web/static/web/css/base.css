@@ -16,3 +16,44 @@ body {
     border-bottom-style: solid;
     border-width: 7px;
 }
+.shade {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,.6);
+	z-index: 99999;
+	top: 0px;
+	left: 0px;
+        display: none;
+}
+.wrapper {
+	padding-top: 190px;
+}
+.dropdown {
+	position: absolute;
+	height: 100%;
+	z-index: 99999;
+	background: #332F3E;
+	right: 0px;
+	width: 75%;
+	color: #80C8B5;
+	border-left: solid;
+	border-width: 10px;
+	border-color: #433F4E;
+        display: none;
+}
+.dropdown-option {
+	font-size: 90px;
+	border-bottom: solid;
+	text-align: left;
+	padding-top: 50px;
+	padding-bottom: 50px;
+	padding-left: 30px;
+    }
+.dropdown-icon {
+	position: relative;
+	font-size: 120px;
+	top: 50px;
+	left: -40px;
+	float: right;
+}

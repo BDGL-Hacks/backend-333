@@ -41,6 +41,7 @@
 	margin: auto;
 	margin-top: 50px;
 	background: #4DB788;
+        margin-bottom: 100px
 }
 .chat-button {
 	width: 90%;
@@ -58,8 +59,13 @@
 }
 
 .carousel-indicators {
-	position: fixed;
-	bottom: 20px;
+    position: fixed;
+    padding-bottom: 35px;
+    bottom: -10px;
+    background: white;
+    width: 100%;
+    margin-left: 0;
+    left: 0;
 }
 .carousel-indicators li{
 	width: 40px;

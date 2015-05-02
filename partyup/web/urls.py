@@ -5,5 +5,5 @@ from web import views
 urlpatterns = patterns(
     '',
     url(r'groups/home/', views.groups_home),
-    url(r'$', views.homepage),
+    url(r'^$', views.homepage),
 )
