@@ -23,12 +23,7 @@ function accounts_login(username, password, deviceID, callback) {
         password: password,
         deviceID: deviceID,
     };
-    // $.post(url, data, callback);
-    // $.ajax({
-    //     url: url,
-    //     dataType: 'jsonp',
-    //     success: callback,
-    // })
+
     $.ajax({
         type: 'POST',
         url: url,
