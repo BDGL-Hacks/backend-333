@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from users.views import views, events, accounts, groups, messages, invites
+from users.views import events, accounts, groups, messages, invites
 
 urlpatterns = patterns(
     '',
