@@ -20,9 +20,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = '$&2$p=s9!6v0l$p_x_ct@rpznb)-64pc-e@g4f1rc%)=lxeed@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+import sys
+DEBUG = (sys.argv[1] == 'runserver')
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = (sys.argv[1] == 'runserver')
 
 ALLOWED_HOSTS = []
 
@@ -39,7 +40,6 @@ INSTALLED_APPS = (
     'users',
     'push_notifications',
     'web',
-    'corsheaders',
 )
 
 PUSH_NOTIFICATIONS_SETTINGS = {
@@ -48,10 +48,8 @@ PUSH_NOTIFICATIONS_SETTINGS = {
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    # 'corsheaders.middleware.CorsPostCsrfMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -98,6 +96,11 @@ STATIC_URL = '/static/'
 # Name of AWS S3 bucket. Used for picture uploading, downloading, and etc.
 # S3_BUCKET = 'partyup'
 
-# Enable CORS
-CORS_ORIGIN_ALLOW_ALL = True
-# CORS_ALLOW_CREDENTIALS = False
+# Server IP address. Used for setting destination for API calls
+import urllib, re
+if sys.argv[1] == 'runserver':
+    DESTINATION = 'http://localhost:8000'
+else:
+    # Look up public ip address
+    data = str(urllib.urlopen('http://checkip.dyndns.com/').read())
+    DESTINATION = 'http://' + re.compile(r'Address: (\d+\.\d+\.\d+\.\d+)').search(data).group(1)
