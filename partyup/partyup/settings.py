@@ -21,9 +21,13 @@ SECRET_KEY = '$&2$p=s9!6v0l$p_x_ct@rpznb)-64pc-e@g4f1rc%)=lxeed@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 import sys
-DEBUG = (sys.argv[1] == 'runserver')
+try:
+    is_dev = (sys.argv[1] == 'runserver')
+except:
+    is_dev = False
+DEBUG = is_dev
 
-TEMPLATE_DEBUG = (sys.argv[1] == 'runserver')
+TEMPLATE_DEBUG = is_dev
 
 ALLOWED_HOSTS = []
 
@@ -98,7 +102,7 @@ STATIC_URL = '/static/'
 
 # Server IP address. Used for setting destination for API calls
 import urllib, re
-if sys.argv[1] == 'runserver':
+if is_dev:
     DESTINATION = 'http://localhost:8000'
 else:
     # Look up public ip address
