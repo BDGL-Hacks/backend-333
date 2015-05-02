@@ -20,5 +20,11 @@
         PartyUp 
     </div>
     {% block body %}{% endblock %}
+    <script type="text/javascript">
+    // Initialize the API
+    $(document).ready(function() {
+        set_server("{{ server }}");
+    });
+    </script>
 </body>
 </html>
