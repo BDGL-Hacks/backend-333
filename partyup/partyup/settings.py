@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'users',
     'push_notifications',
     'web',
+    'corsheaders',
 )
 
 PUSH_NOTIFICATIONS_SETTINGS = {
@@ -47,8 +48,10 @@ PUSH_NOTIFICATIONS_SETTINGS = {
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    # 'corsheaders.middleware.CorsPostCsrfMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -95,3 +98,6 @@ STATIC_URL = '/static/'
 # Name of AWS S3 bucket. Used for picture uploading, downloading, and etc.
 # S3_BUCKET = 'partyup'
 
+# Enable CORS
+CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ALLOW_CREDENTIALS = False
