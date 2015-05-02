@@ -124,7 +124,7 @@ class Group(models.Model):
     Night/itinerary
     '''
     events = models.ManyToManyField(Event)
-
+    current_event = models.ForeignKey(Event, related_name='current_event', null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
     picture = models.CharField(max_length=40, null=True)

@@ -89,7 +89,7 @@ def event_create(request):
     info = {'data': {'event': event.id,
                      'invitee': invite_list
                      },
-            'info': user
+            'user': user
             }
     invite_response = event_invite(info)
     if not invite_response['accepted']:

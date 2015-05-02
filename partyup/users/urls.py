@@ -12,6 +12,7 @@ urlpatterns = patterns(
 
     url(r'^invites/respond', invites.respond_invite),
 
+    url(r'^groups/addevent', groups.group_add_events),
     url(r'^groups/create', groups.create_group, name='create_group'),
     url(r'^groups/get/?$', groups.group_get),
     url(r'^groups/getid/?$', groups.group_getid, name='group_getid'),
