@@ -19,8 +19,9 @@ def add_device(deviceID, user):
             user.device = device
             user.save()
         else:
-            user.device.registration_id = deviceID
-            user.device.save()
+            if user.device.registration_id != deviceID:
+                user.device.registration_id = deviceID
+                user.device.save()
     # Check if the id exists for another user
     except IntegrityError:
         return JsonResponse({'error': "Duplicate Device ID",
