@@ -25,7 +25,7 @@
 .ping-button {
 	width: 90%;
 	border: solid;
-	border-width: 10;
+	border-width: 10px;
 	font-size: 100px;
 	text-align: center;
 	margin: auto;
@@ -35,7 +35,7 @@
 .edit-button {
 	width: 90%;
 	border: solid;
-	border-width: 10;
+	border-width: 10px;
 	font-size: 100px;
 	text-align: center;
 	margin: auto;
@@ -46,7 +46,7 @@
 .chat-button {
 	width: 90%;
 	border: solid;
-	border-width: 10;
+	border-width: 10px;
 	font-size: 100px;
 	text-align: center;
 	margin: auto;

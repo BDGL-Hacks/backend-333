@@ -1,9 +1,17 @@
+.group-name-fixed {
+      font-size: 100px;
+        text-align: center;
+          width: 80%;
+            margin: auto;
+              margin-top: 50px;
+                font-family: 'Roboto Slab', serif;
+}
 .ping-members {
 	border-left: solid;
 	border-bottom: solid;
 	border-right: solid;
 	
-	border-width: 10;
+	border-width: 10px;
 	width: 90%;
 	margin: auto
 }
@@ -11,7 +19,7 @@
 .ping-member {
 	width: 100%;
 	border-top: solid;
-	border-width: 10;
+	border-width: 10px;
 	font-size: 60px;
 	text-align: left;
 	margin: auto;
