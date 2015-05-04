@@ -46,6 +46,16 @@
 	background: #4DB788;
         margin-bottom: 100px
 }
+.general-button {
+    width: 90%;
+    border: solid;
+    border-width: 10px;
+    font-size: 100px;
+    text-align: center;
+    margin: auto;
+    margin-top: 50px;
+    background: #4DB788;
+}
 .chat-button {
 	width: 90%;
 	border: solid;
@@ -82,4 +92,8 @@
 	border-radius: 30px;
 	background-color: #332F3E;
 
+}
+
+.active-event {
+    background: rgb(117, 255, 117);
 }
