@@ -103,9 +103,10 @@ STATIC_URL = '/static/'
 
 # Server IP address. Used for setting destination for API calls
 import urllib, re
-if is_dev:
-    DESTINATION = 'http://localhost:8000'
-else:
-    # Look up public ip address
-    data = str(urllib.urlopen('http://checkip.dyndns.com/').read())
-    DESTINATION = 'http://' + re.compile(r'Address: (\d+\.\d+\.\d+\.\d+)').search(data).group(1)
+#if is_dev:
+#    DESTINATION = 'http://localhost:8000'
+#else:
+#    # Look up public ip address
+#    data = str(urllib.urlopen('http://checkip.dyndns.com/').read())
+#    DESTINATION = 'http://' + re.compile(r'Address: (\d+\.\d+\.\d+\.\d+)').search(data).group(1)
+DESTINATION = ''

@@ -14,7 +14,8 @@ $(document).ready(function() {
     var delay = 400;
     setTimeout(function() {
         api_groups_get("attending", function(data) {
-            $("#loader").remove();
+            $("#loader").css('display', "None");
+            $('.shade').fadeOut();
             if (data["accepted"]) {
                 var groups = data["groups"];
                 var numGroups = groups.length;
@@ -70,11 +71,11 @@ function addActiveGroup(group) {
             <div class="group-name">'
             + group["title"] + '\
             </div>\
-            <div class="event-curr">\
-                    Current Event <span class="glyphicon glyphicon-cog" \
-                aria-hidden="true" \
-                style="top: 10; left: 20;"></span>\
+                <div class="event-warning">\
                 </div>\
+            <div class="event-curr">\
+                    Current Event\
+                    </div>\
                 <div class="event-info">\
                     <div class="event-name">'
                         + group["current_event"]["title"] + '\
@@ -90,14 +91,30 @@ function addActiveGroup(group) {
                     Chat\
                 </div>\
                 <div class="ping-button">\
-                    Ping Group\
+                    Group&#8217;s Status\
                 </div>\
                 <div class="edit-button">\
-                    Edit Group\
+                    Group&#8217;s Events\
                 </div>\
             </div>\
         <div>\
     ');        
+}
+/**
+ * Add a warning if the user is not
+ * with his group
+ */
+function addGroupWarning(numGroup){
+    itemDiv = $(".event-warning:eq(" + numGroup +")")
+    itemDiv.css("display","block");
+    itemDiv.append('\
+                <div class="event-warning-icon">\
+                     <span class="glyphicon glyphicon-bullhorn" \
+                aria-hidden="true" \
+                style="  top: 25px; left: 10px;"></span>\
+                </div>\
+                <div class="event-warning-text"> You are currently not with your group! Tap to update.</div>\
+                ');
 }
 
 /**
@@ -109,11 +126,11 @@ function addGroup(group) {
             <div class="group-name">'
             + group["title"] + '\
             </div>\
-            <div class="event-curr">\
-                    Current Event <span class="glyphicon glyphicon-cog" \
-                aria-hidden="true" \
-                style="top: 10; left: 20;"></span>\
+                <div class="event-warning">\
                 </div>\
+            <div class="event-curr">\
+                    Current Event\
+                    </div>\
                 <div class="event-info">\
                     <div class="event-name">'
                         + group["current_event"]["title"] + '\
@@ -129,10 +146,10 @@ function addGroup(group) {
                     Chat\
                 </div>\
                 <div class="ping-button">\
-                    Ping Group\
+                    Group&#8217;s Status\
                 </div>\
                 <div class="edit-button">\
-                    Edit Group\
+                    Group&#8217;s Events\
                 </div>\
             </div>\
         <div>\

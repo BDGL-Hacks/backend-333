@@ -49,3 +49,25 @@ function api_accounts_login(username, password, deviceID, callback) {
     };
     $.post(url, data, callback);
 }
+
+// gets a singleEvent based on its id
+function api_groups_getid(id, callback) {
+    var url = "/api/groups/getid";
+    var data = {'id': id};
+    console.log(data);
+    $.post(url, data, function(data) {
+        if (data.hasOwnProperty("accepted")) {
+            console.log("We have data");
+            console.log(data);
+            if(data["accepted"]) {
+                new_data = {
+                    'accepted': data['accepted'],
+                    'group': data['group']
+                };
+                callback(new_data);
+            } else {
+                callback(data);
+            }
+        }
+    });
+}
