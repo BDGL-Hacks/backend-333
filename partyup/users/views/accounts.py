@@ -109,6 +109,10 @@ def login_view(request):
 
                 # Save their IOS device
                 if deviceID:
+                    deviceID = str(deviceID)
+                    print (deviceID)
+                    deviceID = deviceID.translate(None, '<> ')
+                    print deviceID
                     error = add_device(deviceID, user.user_profile)
                     if error:
                         return error
