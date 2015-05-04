@@ -142,7 +142,15 @@ class Group(models.Model):
     def to_dict(self):
         members = []
         for member in self.group_members.all():
-            members.append(member.to_dict())
+            # Get standard User_Profile information as well as information
+            # about the user's status in the group.
+            info = member.to_dict()
+            ugi = User_Group_info.objects.get(user_profile=member)
+            info['group_status'] = {
+                'status': ugi.status.to_dict_sparse(),
+                'indicator': ugi.indicator,
+            }
+            members.append(info)
         events = []
         for event in self.events.all():
             print event
