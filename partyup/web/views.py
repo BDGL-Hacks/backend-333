@@ -7,14 +7,12 @@ def homepage(request):
     '''
     Render the home page.
     '''
-    print "in wrong"
-    return render(request, 'web/index.html', {'server': settings.DESTINATION})
+    return render(request, 'web/index.html')
 
 
 def groups_home(request):
-    print "here"
-    return render(request, 'web/group-home.html', {'server': settings.DESTINATION})
+    return render(request, 'web/group-home.html')
+
 
 def groups_ping(request):
-    return render(request, 'web/group-ping.html', {'server': settings.DESTINATION})
-        
+    return render(request, 'web/group-ping.html')
