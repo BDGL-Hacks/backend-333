@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from users.models import Event, User_Profile, Group,User_Group_info
+from users.models import Event, User_Profile, Group, User_Group_info
 from datetime import date, datetime
 from push import send_group_message
 
@@ -86,7 +86,7 @@ def respond_invite(request):
         if accept == 'True' or accept == 'true':
             user.groups_current.add(group)
             # Accept group with UGI
-            ugi = User_Group_info(user_profile=user, group=group)
+            ugi = User_Group_info(user_profile=user, group=group, status=group.current_event)
             ugi.save()
         # save both group/user
         group.save()
@@ -111,17 +111,19 @@ def group_invite_view(request):
     error = _validate_request(request)
     if error:
         return error
-    info = {'data': request.POST,
-            'user': request.user.user_profile
-            }
+    info = {
+        'data': request.POST,
+        'user': request.user.user_profile
+    }
     return JsonResponse(group_invite(info))
+
 
 def group_invite(info):
     '''
     Helper method that invites the list of users to a group.
     Info should be a dictionary with
     data = a dictionary with group, invitee
-    (invitee should be comma seperated ids of User_Profiles)
+    (invitee should be comma separated ids of User_Profiles)
     (group should be an group id)
     and
     user = the user_profile that sent the request
@@ -165,24 +167,28 @@ def group_invite(info):
         invitee.save()
         group.invited_members.add(invitee)
     group.save()
-   
+
     # Send push notifications to everyone
-    message = "Group invite to: \"" + group.title +"\""
-    extra = {'type': 'group-invite',
-             'id': group.id,
-            }
+    message = "Group invite to: \"" + group.title + "\""
+    extra = {
+        'type': 'group-invite',
+        'content': {
+            'id': group.id,
+        },
+    }
     send_group_message(inviteeSet, message, extra=extra)
 
     # return successfully
     response['accepted'] = True
     return response
 
+
 def event_invite(info):
     '''
     Helper method that invites the list of users to an event.
     Info should be a dictionary with
     data = a dictionary with event, invitee
-    (invitee should be comma seperated ids of User_Profiles)
+    (invitee should be comma separated ids of User_Profiles)
     (event should be an event id)
     and
     user = the user_profile that sent the request
@@ -215,13 +221,13 @@ def event_invite(info):
         if not event.attending_list.filter(id=user.id):
             response['error'] = 'You do not have permission to add to this event'
             response['accepted'] = False
-            return response 
+            return response
     else:
         if not event.admin.id == user.id:
             response['error'] = 'You do not have permission to add to this event'
             response['accepted'] = False
             return response
-    
+
     # Send invites to everyone
     if inviteeIDs:
         invitees = inviteeIDs.split(',')
@@ -237,15 +243,20 @@ def event_invite(info):
     event.save()
 
     # Send push notifications to everyone
-    message = "Event invite to: \"" + event.title +"\""
-    extra = {'type': 'event-invite',
-             'id': event.id,
-            }
+    message = "Event invite to: \"" + event.title + "\""
+    extra = {
+        'type': 'event-invite',
+        'content': {
+            'id': event.id,
+        }
+    }
+    send_group_message(inviteeSet, message, extra=extra)
 
     # return successfully
     response['accepted'] = True
     return response
-        
+
+
 @csrf_exempt
 def event_invite_view(request):
     '''
@@ -254,7 +265,8 @@ def event_invite_view(request):
     error = _validate_request(request)
     if error:
         return error
-    info = {'data': request.POST,
-            'user': request.user.user_profile,
-            }
+    info = {
+        'data': request.POST,
+        'user': request.user.user_profile,
+    }
     return JsonResponse(event_invite(info))

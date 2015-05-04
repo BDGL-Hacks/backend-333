@@ -54,7 +54,7 @@ class User_Profile(models.Model):
 
 
 class User_Group_info(models.Model):
-    status = models.CharField(max_length=100, null=True, blank=True)
+    status = models.ForeignKey('Event')
     indicator = models.IntegerField(default=0)
     user_profile = models.ForeignKey('User_Profile')
     group = models.ForeignKey('Group')
