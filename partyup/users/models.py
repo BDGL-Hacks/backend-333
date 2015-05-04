@@ -52,6 +52,11 @@ class User_Profile(models.Model):
             'picture': self.picture
         }
 
+class User_Group_info(models.Model):
+    status = models.CharField(max_length=100, null=True, blank=True)
+    indicator = models.IntegerField(default=0)
+    user_profile = models.ForeignKey('User_Profile')
+    group = models.ForeignKey('Group')
 
 class Event(models.Model):
     date_created = models.DateTimeField('date published', default=datetime.now)
@@ -75,7 +80,7 @@ class Event(models.Model):
     location_long = None
 
     invite_list = models.ManyToManyField(User_Profile, related_name='invite_list')
-    attending_list = models.ManyToManyField(User_Profile, related_name='attending_list')
+    attending_list = models.ManyToManyField(User_Profile, related_name='attending_list') 
 
     picture = models.CharField(max_length=40, null=True)
 
@@ -118,7 +123,7 @@ class Group(models.Model):
     date_created = models.DateTimeField('date published', default=datetime.now)
     created_by = models.ForeignKey(User_Profile, related_name='group_creator')
     # People in the group
-    group_members = models.ManyToManyField(User_Profile, related_name='group_members')
+    group_members = models.ManyToManyField(User_Profile, related_name='group_members', through='User_Group_info')
     invited_members = models.ManyToManyField(User_Profile, related_name='invited_members')
     '''
     Night/itinerary

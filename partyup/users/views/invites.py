@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from users.models import Event, User_Profile, Group
+from users.models import Event, User_Profile, Group,User_Group_info
 from datetime import date, datetime
 from push import send_group_message
 
@@ -85,7 +85,9 @@ def respond_invite(request):
         # Accept on both sides
         if accept == 'True' or accept == 'true':
             user.groups_current.add(group)
-            group.group_members.add(user)
+            # Accept group with UGI
+            ugi = User_Group_info(user_profile=user, group=group)
+            ugi.save()
         # save both group/user
         group.save()
         user.save()

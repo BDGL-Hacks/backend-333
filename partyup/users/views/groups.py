@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from users.models import User_Profile, Event, Group, Channel
+from users.models import User_Profile, Event, Group, Channel, User_Group_info
 from invites import group_invite
 import pictures
 
@@ -69,8 +69,10 @@ def create_group(request):
     group.save()
 
     # add user to be attending their own group
+    # uses User_Group_info
     user.groups_current.add(group)
-    group.group_members.add(user)
+    ugi = User_Group_info(user_profile=user, group=group)
+    ugi.save()
     user.save()
 
     # Make the chat channel with the group id
