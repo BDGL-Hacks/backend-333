@@ -22,6 +22,9 @@
 	border-width: 10px;
 	font-size: 80px;
 }
+.event-time {
+	font-size: 50px;
+}
 .ping-button {
 	width: 90%;
 	border: solid;

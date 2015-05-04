@@ -3,111 +3,20 @@
 {% block extra_head %}
 	<link rel="stylesheet" type="text/css" href="{% static 'web/css/group-home.css' %}">
 	<script src="{% static 'web/js/group-home.js' %}"></script>
-        <script>
-$(document).ready(function() {  
-    $("#group-carousel").swiperight(function() {  
-        $(this).carousel('prev');  
-        var indic = $( '.active-indicator');
-        var prev = indic.prev();
-        if (prev.is('li')){
-            indic.removeClass("active-indicator");
-            prev.addClass("active-indicator");  
-        }
-    });  
-    $("#group-carousel").swipeleft(function() {  
-        $(this).carousel('next')
-        var indic = $( '.active-indicator');
-        var next = indic.next();
-        if (next.is('li')){
-            indic.removeClass("active-indicator");
-            next.addClass("active-indicator");  
-        }
-    });  
-});  
-        </script>
+	<script src="{% static 'web/js/moment.js' %}"></script>
 {% endblock extra_head %}
 {% block body %}
-	<div id="group-carousel" class="carousel slide" data-ride="carousel" data-interval="false" data-wrap="false">
-
+	<div id="group-carousel" class="carousel slide" data-ride="carousel" data-interval="false">
 		<!-- Wrapper for slides -->
 		<div class="carousel-inner">
-			<div class="item active">
-				<div class="group-name">
-					Cos 333 Group	
-				</div>
-				<div class="event-curr">
-					Current Event <span class="glyphicon glyphicon-cog" 
-			 aria-hidden="true" 
-    style="top: 10; left: 20;"></span>
-				</div>
-
-				<div class="event-info">
-					<div class="event-name">
-						Demo Day
-					</div>
-					<div class="event-time" style="font-size:50px;">
-						10:30 am Thursday, May 30
-					</div>
-					<div class="event-location">
-						The ClassRoom
-					</div>
-
-				</div>
-				<div class="chat-button">
-					Chat
-				</div>
-				<div class="ping-button">
-					Ping Group
-				</div>
-				<div class="edit-button">
-					Edit Group
-				</div>
-				<div class="edit-button">
-					Edit Group
-				</div>
-				<div class="edit-button">
-					Edit Group
-				</div>
-			</div>
-			<div class="item">
-				<div class="group-name">
-					Cos 444 Group	
-				</div>
-				<div class="event-curr">
-					Current Event <span class="glyphicon glyphicon-cog" 
-			 aria-hidden="true" 
-    style="top: 10; left: 20;"></span>
-				</div>
-
-				<div class="event-info">
-					<div class="event-name">
-						Demo Day
-					</div>
-					<div class="event-time" style="font-size:50px;">
-						10:30 am Thursday, May 30
-					</div>
-					<div class="event-location">
-						The ClassRoom
-					</div>
-
-				</div>
-				<div class="chat-button">
-					Chat
-				</div>
-				<div class="ping-button">
-					Ping Group
-				</div>
-				<div class="edit-button">
-					Edit Group
-				</div>
-			</div>
+			{# Groups will be added here #}
 		</div>
-
 	</div> <!-- Carousel -->
 	<!-- Indicators -->
 	<ol class="carousel-indicators">
-		<li data-target="#group-carousel" data-slide-to="0" class="active-indicator" onclick="carouselClick($(this))"></li>
-		<li data-target="#group-carousel" data-slide-to="1"onclick="carouselClick($(this))"></li>
+		{# Carousel indicators will be added here #}
 	</ol>
-
+	<div id="loader">
+		<img src="{% static 'web/images/ajax_loader_gray_512.gif' %}">
+	</div>
 {% endblock body %}

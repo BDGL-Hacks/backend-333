@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 from users.views import events, accounts, groups, messages, invites
 
 urlpatterns = patterns(
@@ -13,7 +13,7 @@ urlpatterns = patterns(
     url(r'^invites/respond', invites.respond_invite),
 
     url(r'^groups/addevent', groups.group_add_events),
-    url(r'^groups/create', groups.create_group, name='create_group'),
+    url(r'^groups/create', groups.group_create, name='create_group'),
     url(r'^groups/get/?$', groups.group_get),
     url(r'^groups/getid/?$', groups.group_getid, name='group_getid'),
     url(r'^groups/invite', invites.group_invite_view),

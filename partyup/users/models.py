@@ -34,7 +34,7 @@ class User_Profile(models.Model):
     groups_past = models.ManyToManyField('Group', related_name='groups_past', blank=True)
 
     # Profile picture
-    picture = models.CharField(max_length=40, null=True)
+    picture = models.CharField(max_length=40, null=True, blank=True)
 
     # The device needed to send push notifications
     device = models.ForeignKey(APNSDevice, null=True, blank=True)
@@ -52,11 +52,13 @@ class User_Profile(models.Model):
             'picture': self.picture
         }
 
+
 class User_Group_info(models.Model):
     status = models.CharField(max_length=100, null=True, blank=True)
     indicator = models.IntegerField(default=0)
     user_profile = models.ForeignKey('User_Profile')
     group = models.ForeignKey('Group')
+
 
 class Event(models.Model):
     date_created = models.DateTimeField('date published', default=datetime.now)
@@ -82,7 +84,7 @@ class Event(models.Model):
     invite_list = models.ManyToManyField(User_Profile, related_name='invite_list')
     attending_list = models.ManyToManyField(User_Profile, related_name='attending_list') 
 
-    picture = models.CharField(max_length=40, null=True)
+    picture = models.CharField(max_length=40, null=True, blank=True)
 
     # TODO later
     category = None
@@ -132,7 +134,7 @@ class Group(models.Model):
     current_event = models.ForeignKey(Event, related_name='current_event', null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
-    picture = models.CharField(max_length=40, null=True)
+    picture = models.CharField(max_length=40, null=True, blank=True)
 
     def __str__(self):
         return '%d %s' % (self.id, self.title)
@@ -145,12 +147,17 @@ class Group(models.Model):
         for event in self.events.all():
             print event
             events.append(event.to_dict_sparse())
+        if self.current_event:
+            current_event = self.current_event.to_dict_sparse()
+        else:
+            current_event = events[0]
         return {
             'id': self.id,
             'title': self.title,
             'members': members,
             'events': events,
             'picture': self.picture,
+            'current_event': current_event,
         }
 
 
