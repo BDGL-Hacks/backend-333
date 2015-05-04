@@ -74,7 +74,7 @@ def messages_get(request):
         messageID = channel.num_messages
     messages = []
     messagesObj = Message.objects.filter(channel=channel)
-    
+
     # index is the last 10 messages from messageID
     index = messageID - 10
     # edge case for when returning the first few messages
@@ -128,7 +128,7 @@ def messages_post(request):
         response['accepted'] = False
         return JsonResponse(response)
     group = group[0]
-    
+
     # check permissions
     if not group.group_members.filter(id=user.id):
         response['error'] = 'NEED PERMISSION FOR GROUP'
@@ -145,19 +145,25 @@ def messages_post(request):
                          text=message, number=channel.num_messages)
     messageObj.save()
 
-    messageData = {'message': message,
-                   'owner': messageObj.owner.to_dict(),
-                   'time':  str(messageObj.time_sent)}
+    messageData = {
+        'type': 'message',
+        'content': {
+            'message': message,
+            'owner': messageObj.owner.to_dict(),
+            'time': str(messageObj.time_sent),
+            'group': groupid,
+        },
+    }
 
     # send the message through PUSHER
     pusherAPI[channel.name].trigger('message', messageData)
 
-    # send a push notification to the members of the group 
+    # send a push notification to the members of the group
     # exclude the user sending the messages
     users = group.group_members.exclude(id=user.id)
     message = user.user.first_name + ": " + message
     send_group_message(users, message, extra=messageData)
 
     # return successfully
-    response['accepted'] = True 
+    response['accepted'] = True
     return JsonResponse(response)

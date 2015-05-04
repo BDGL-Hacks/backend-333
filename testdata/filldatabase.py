@@ -15,7 +15,7 @@ from random import random
 import requests
 import sys
 
-server = "http://52.4.3.6"
+server = "http://52.4.3.6/api"
 cookies = {}
 
 
