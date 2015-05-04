@@ -14,3 +14,7 @@ def homepage(request):
 def groups_home(request):
     print "here"
     return render(request, 'web/group-home.html', {'server': settings.DESTINATION})
+
+def groups_ping(request):
+    return render(request, 'web/group-ping.html', {'server': settings.DESTINATION})
+        
