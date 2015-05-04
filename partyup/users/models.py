@@ -113,6 +113,7 @@ class Event(models.Model):
 
     def to_dict_sparse(self):
         return {
+            'admin': self.admin.to_dict(),
             'title': self.title,
             'location_name': self.location_name,
             'time': str(self.time),
