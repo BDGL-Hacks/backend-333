@@ -140,12 +140,17 @@ class Group(models.Model):
         for event in self.events.all():
             print event
             events.append(event.to_dict_sparse())
+        if self.current_event:
+            current_event = self.current_event.to_dict_sparse()
+        else:
+            current_event = events[0]
         return {
             'id': self.id,
             'title': self.title,
             'members': members,
             'events': events,
             'picture': self.picture,
+            'current_event': current_event,
         }
 
 

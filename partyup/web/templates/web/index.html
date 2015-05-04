@@ -1,5 +1,27 @@
 {% extends "web/base.html" %}
 {% load staticfiles %}
+{% block extra_head %}
+<script type="text/javascript">
+function accounts_login() {
+    var username = $("#username").val();
+    var password = $("#password").val();
+    api_accounts_login(
+        username,
+        password,
+        "",
+        function(data, status) {
+            console.log("data");
+            for (var key in data) {
+                if (data.hasOwnProperty(key)) {
+                    console.log(key + ": " + data[key]);
+                }
+            }
+            console.log("status: " + status)
+            console.log("cookies: " + document.cookie);
+        });
+}
+</script>
+{% endblock extra_head %}
 {% block body %}
 <div style="padding-top:500px;">
 <form method="post" action="javascript:accounts_login()">

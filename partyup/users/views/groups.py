@@ -27,7 +27,7 @@ def _validate_request(request):
 
 
 @csrf_exempt
-def create_group(request):
+def group_create(request):
     '''
     Creates a group.
     Mandatory Data
@@ -162,7 +162,7 @@ def group_getid(request):
 @csrf_exempt
 def group_get(request):
     '''
-    Get all relevent groups
+    Get all relevant groups
     Can get attending, created, or invited groups
     Groups chosen by 'type' POST data
     '''
@@ -171,6 +171,8 @@ def group_get(request):
         return error
 
     response = {}
+    print request.user
+    print request.user.email
     user = request.user.user_profile
     for t in request.POST.getlist('type'):
         if t == 'attending':
@@ -187,18 +189,19 @@ def group_get(request):
     response['accepted'] = True
     return JsonResponse(response)
 
+
 @csrf_exempt
 def group_add_events(request):
     response = {'accepted': False}
     error = _validate_request(request)
     if error:
         return error
-    
+
     user = request.user.user_profile
 
     groupID = request.POST.get('group', '')
     eventIDs = request.POST.get('eventIDs', '')
-    
+
     if not eventIDs or not groupID:
         response['error'] = 'MISSING INFO'
         return JsonResponse(response)
@@ -216,7 +219,7 @@ def group_add_events(request):
         response['error'] = 'You do not have permission to add to this group'
         response['accepted'] = False
         return response
-    
+
     event_ids = eventIDs.split(',')
     # grab events and add them to the group
     events = Event.objects.filter(id__in=event_ids)
@@ -230,6 +233,7 @@ def group_add_events(request):
     # return successfully
     response['accepted'] = True
     return JsonResponse(response)
+
 
 @csrf_exempt
 def group_picture_upload(request):
