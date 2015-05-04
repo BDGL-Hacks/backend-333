@@ -158,7 +158,9 @@ def group_getid(request):
         return JsonResponse(response)
 
     # Return sucessfully
-    return JsonResponse(group.to_dict())
+    response['accepted'] = True
+    response['group'] = group.to_dict()
+    return JsonResponse(response)
 
 
 @csrf_exempt
