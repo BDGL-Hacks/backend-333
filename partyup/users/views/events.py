@@ -71,6 +71,10 @@ def event_create(request):
     # The time included in the POST request should take the form
     # YYYYMMDDhhmm
     print (time)
+    if len(time) != 12:
+        response['accepted'] = False
+        response['error'] = 'Invalid date format'
+        return JsonResponse(response)
     event_data['time'] = datetime(int(time[0:4]), int(time[4:6]),
                                   int(time[6:8]), int(time[8:10]),
                                   int(time[10:12]))
@@ -86,11 +90,13 @@ def event_create(request):
     user.save()
 
     # invite the users
-    info = {'data': {'event': event.id,
-                     'invitee': invite_list
-                     },
-            'user': user
-            }
+    info = {
+        'data': {
+            'event': event.id,
+            'invitee': invite_list
+        },
+        'user': user
+    }
     invite_response = event_invite(info)
     if not invite_response['accepted']:
         return JsonResponse(invite_response)

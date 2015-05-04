@@ -1,21 +1,10 @@
 // Library for API calls
 
-// TODO: get rid of all the set server stuff.
-
-
-// var server = "";
-
-// // Initialize the API
-// function api_set_server(s) {
-//     server = s + "/api";
-// }
-
 // Get groups of given type for the current user. type may be set to "attending",
 // "created", or "invited". Call the given callback function on success, which 
 // allows the client to manipulate the JSON returned by the server.
 // Function assumes that the user is logged in.
 function api_groups_get(type, callback) {
-    // var url = server + "/groups/get/";
     var url = "/api/groups/get/";
     var data = {type: type};
     $.post(url, data, function(data) {
@@ -40,7 +29,6 @@ function api_groups_get(type, callback) {
 // Logs in the user asynchronously. Calls the given callback function when
 // the request is complete
 function api_accounts_login(username, password, deviceID, callback) {
-    // var url = server + "/users/login/";
     var url = "/api/users/login/";
     var data = {
         username: username,

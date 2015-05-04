@@ -4,7 +4,7 @@ from django.db import IntegrityError
 
 
 def add_device(deviceID, user):
-    ''' 
+    '''
     Add a phone device to a user.
     If user has a phone device it will update
     the id.
@@ -36,13 +36,14 @@ def send_group_message(users, message, badge=None, extra=None):
 
     for device in devices:
         if not badge and extra:
-            device.send_message(message,extra=extra)
+            device.send_message(message, extra=extra)
         if badge and not extra:
-            device.send_message(message,badge=badge)
+            device.send_message(message, badge=badge)
         if badge and extra:
-            device.send_message(message,extra=extra, badge=badge)
+            device.send_message(message, extra=extra, badge=badge)
         if not badge and not extra:
             device.send_message(message)
+
 
 def send_message(user, message, badge=None, extra=None):
     '''

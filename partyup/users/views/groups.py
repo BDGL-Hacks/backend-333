@@ -1,8 +1,8 @@
-from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from users.models import User_Profile, Event, Group, Channel, User_Group_info
 from invites import group_invite
+from push import send_group_message
+from users.models import Event, Group, Channel, User_Group_info
 import pictures
 
 
@@ -68,57 +68,38 @@ def group_create(request):
     group = Group(created_by=user, title=group_name)
     group.save()
 
-    # add user to be attending their own group
-    # uses User_Group_info
-    user.groups_current.add(group)
-    ugi = User_Group_info(user_profile=user, group=group)
-    ugi.save()
-    user.save()
-
     # Make the chat channel with the group id
     channel_name = "GroupChat" + str(group.id)
     group.chat_channel = channel_name
     channel = Channel(name=channel_name, group=group)
     channel.save()
-    
+
     # add all events to the group
     events = Event.objects.filter(id__in=event_ids)
     for event in events:
         group.events.add(event)
-    
+
     # make the current event the most recent
     group.current_event = events.earliest('time')
 
+    # add user to be attending their own group
+    # uses User_Group_info
+    user.groups_current.add(group)
+    ugi = User_Group_info(user_profile=user, group=group, status=group.current_event)
+    ugi.save()
+    user.save()
+
     # invite all of the users
-    info = {'data': {'group':group.id,
-                     'invitee': invite_list,
-                     },
-            'user': user
-            }
+    info = {
+        'data': {
+            'group': group.id,
+            'invitee': invite_list,
+        },
+        'user': user
+    }
     invite_response = group_invite(info)
     if not invite_response['accepted']:
         return JsonResponse(invite_response)
-
-#    # grab all of the User_Profiles to be invited
-#    for name in invite_list:
-#        if not name:
-#            continue
-#
-#        # get the django User object
-#        u = User.objects.filter(email=name)
-#
-#        # Get the actual User_Profile object
-#        if u:
-#            u = u[0].user_profile
-#        if not u:
-#            response['error'] = 'One of your invitees is not a user'
-#            response['accepted'] = False
-#            group.delete()
-#            return JsonResponse(response)
-#
-#        group.invited_members.add(u)
-#        u.groups_invite_list.add(group)
-#        u.save()
 
     group.save()
     response['accepted'] = True
@@ -240,17 +221,15 @@ def group_add_events(request):
 
 
 @csrf_exempt
-def change_currentevent(request):
+def group_change_currentevent(request):
     response = {'accepted': False}
     error = _validate_request(request)
     if error:
         return error
-    
-    user = request.user.user_profile
 
+    user = request.user.user_profile
     groupID = request.POST.get('group', '')
     eventID = request.POST.get('event', '')
-    
     if not eventID or not groupID:
         response['error'] = 'MISSING INFO'
         return JsonResponse(response)
@@ -259,48 +238,64 @@ def change_currentevent(request):
     group = Group.objects.filter(id=groupID)
     if not group:
         response['error'] = 'The group requested does not exist'
-        response['accepted'] = False
-        return response
+        return JsonResponse(response)
     group = group[0]
 
-    # Check for proper permission
+    # Check that the user is in the group
     if not group.group_members.filter(id=user.id):
-        response['error'] = 'You do not have permission to add to this group'
-        response['accepted'] = False
-        return response
-    
-    # Check that the event is in the group itinerary 
+        response['error'] = 'You do are not in the group'
+        return JsonResponse(response)
+
+    # Make sure the user is the admin.
+    if group.created_by != user:
+        response['error'] = 'Invalid permissions'
+        return JsonResponse(response)
+
+    # Check that the event is in the group itinerary
     event = group.events.filter(id=eventID)
     if not event:
         response['error'] = 'The event is not in the group itinerary'
         response['accepted'] = False
-        return response
+        return JsonResponse(response)
     event = event[0]
 
     # Add the event as current
     group.current_event = event
     group.save()
 
-    # TODO send push notification/alert
-
     # Reset everyone's status/indicators
     members_info = User_Group_info.objects.filter(group=group)
     for member in members_info:
-        member.status = ""
+        if member.user_profile == user:
+            member.status = event
         member.indicator = 1
         member.save()
+
+    # TODO send push notification/alert
+    # Send notifications to all but the person admin
+    users = group.group_members.all().exclude(user=user.user)
+    message = group.title + ': Going to ' + group.current_event.title
+    extra = {
+        'type': 'location-change',
+        'content': {
+            'group': group.id,
+            'new_location': group.current_event.to_dict_sparse(),
+        },
+    }
+    send_group_message(users, message, extra=extra)
 
     # return successfully
     response['accepted'] = True
     return JsonResponse(response)
-    
+
+
 @csrf_exempt
-def update_status(request):
+def group_update_status(request):
     response = {'accepted': False}
     error = _validate_request(request)
     if error:
         return error
-    
+
     user = request.user.user_profile
 
     groupID = request.POST.get('group', '')
@@ -325,6 +320,7 @@ def update_status(request):
     # return successfully
     response['accepted'] = True
     return JsonResponse(response)
+
 
 @csrf_exempt
 def group_picture_upload(request):
