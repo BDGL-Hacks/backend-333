@@ -234,6 +234,93 @@ def group_add_events(request):
     return JsonResponse(response)
 
 @csrf_exempt
+def change_currentevent(request):
+    response = {'accepted': False}
+    error = _validate_request(request)
+    if error:
+        return error
+    
+    user = request.user.user_profile
+
+    groupID = request.POST.get('group', '')
+    eventID = request.POST.get('event', '')
+    
+    if not eventID or not groupID:
+        response['error'] = 'MISSING INFO'
+        return JsonResponse(response)
+
+    # Check for group's existence
+    group = Group.objects.filter(id=groupID)
+    if not group:
+        response['error'] = 'The group requested does not exist'
+        response['accepted'] = False
+        return response
+    group = group[0]
+
+    # Check for proper permission
+    if not group.group_members.filter(id=user.id):
+        response['error'] = 'You do not have permission to add to this group'
+        response['accepted'] = False
+        return response
+    
+    # Check that the event is in the group itinerary 
+    event = group.events.filter(id=eventID)
+    if not event:
+        response['error'] = 'The event is not in the group itinerary'
+        response['accepted'] = False
+        return response
+    event = event[0]
+
+    # Add the event as current
+    group.current_event = event
+    group.save()
+
+    # TODO send push notification/alert
+
+    # Reset everyone's status/indicators
+    members_info = User_Group_info.objects.filter(group=group)
+    for member in members_info:
+        member.status = ""
+        member.indicator = 1
+        member.save()
+
+    # return successfully
+    response['accepted'] = True
+    return JsonResponse(response)
+    
+@csrf_exempt
+def update_status(request):
+    response = {'accepted': False}
+    error = _validate_request(request)
+    if error:
+        return error
+    
+    user = request.user.user_profile
+
+    groupID = request.POST.get('group', '')
+    indicator = request.POST.get('indicator', '')
+    status = request.POST.get('status', '')
+
+    if not groupID or not indicator:
+        response['error'] = 'MISSING INFO'
+        return JsonResponse(response)
+
+    # update status
+    user_info = User_Group_info.objects.filter(user_profile__id=user.id, group__id=groupID)
+    if not user_info:
+        response['error'] = 'Cannot find user_info'
+        return JsonResponse(response)
+    user_info = user_info[0]
+    user_info.status = status
+    user_info.indicator = int(indicator)
+    user_info.save()
+
+    # TODO push notification if red indicator
+    # return successfully
+    response['accepted'] = True
+    return JsonResponse(response)
+
+@csrf_exempt
 def group_picture_upload(request):
     '''
     Upload a picture for a given group.
