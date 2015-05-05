@@ -162,6 +162,7 @@ class Group(models.Model):
             current_event = events[0]
         return {
             'id': self.id,
+            'created_by': self.created_by.to_dict(),
             'title': self.title,
             'members': members,
             'events': events,

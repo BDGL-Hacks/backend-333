@@ -1,16 +1,3 @@
-function getUrlParameter(sParam)
-{
-    var sPageURL = window.location.search.substring(1);
-    var sURLVariables = sPageURL.split('&');
-    for (var i = 0; i < sURLVariables.length; i++) 
-    {
-        var sParameterName = sURLVariables[i].split('=');
-        if (sParameterName[0] == sParam) 
-        {
-            return sParameterName[1];
-        }
-    }
-}    
 
 function clickOnEvent(div) {
     if(div.hasClass("active-event")){
@@ -35,6 +22,9 @@ $(document).ready(function() {
             if (data["accepted"]) {
                 var group = data["group"];
                 var events = group["events"];
+                var adminID = group['is_admin'];
+                if (!adminID) { $("#group-event").css("display","none");}; 
+                console.log(adminID);
                 $('.group-name').append('\
                         <span class="glyphicon glyphicon-arrow-left   " aria-hidden="true" id="' + groupid + '"style="font-size: 70px;\
                         top: -5px;\
@@ -43,11 +33,13 @@ $(document).ready(function() {
                         + group['title']);
                 for (var i = 0; i < events.length; i++)
                 {
-                    addEventinfo(events[i]); 
                     if (events[i]['id'] === group['current_event']['id'])
                     { 
-
-                    } 
+                        addActiveEventinfo(events[i]); 
+                    } else
+                    {
+                        addEventinfo(events[i]); 
+                    }
                 }
             } else {
                 // Something went wrong in the api call.
@@ -103,13 +95,6 @@ function addEventinfo(eventObj) {
         </div>\
             ');
 }
-/**
- * Convert time in the form "2015-04-16 19:49:00+00:00" to 
- * "3:49 pm Thursday April 16" using moment.js
- */
-function parseTime(time) {
-    return moment(time).format("LLLL");
-}
 
 function groupBackClick(groupid) {
     window.location.href = '../home/?id=' + groupid;
@@ -121,7 +106,7 @@ function setGroupEvent(){
     api_groups_currentevent(groupid, eventid, function(data) {
         if (data['accepted'])
         {
-            window.location.href = '../home'
+            window.location.href = '../home?id=' + groupid;
         }
     });
 }
