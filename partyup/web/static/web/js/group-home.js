@@ -67,6 +67,7 @@ function addActiveGroup(group) {
         <div class="item active">\
             <div class="group-name">'
             + group["title"] + '\
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true" style="font-size: 50px; margin-left: 40px;"></span>\
             </div>\
                 <div class="event-warning">\
                 </div>\
