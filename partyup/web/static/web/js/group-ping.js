@@ -1,7 +1,7 @@
 /**
  * Open and close drop down menus that display user status.
  */
-function pingMemberClick(div){
+function pingMemberClick(div) {
     if (div.hasClass("ping-member-name")) {
         // slide all of the other active ones up
         $( ".ping-member-name-active").each(function( i ) {
@@ -20,29 +20,47 @@ function pingMemberClick(div){
     }
 }
 
+// function called when the ping button is pressed
+function pingbuttonclick(div) {
+    
+
+
+}
 
 /**
  * Generate the proper HTML for the given group.
  */
 $(document).ready(function() {
-    api_groups_getid(1, function(data) {
-        if (data["accepted"]) {
-            // Add title
-            addTitle(data["group"]["title"]);
+    var delay = 400;
+    setTimeout(function() {
+        api_groups_getid(getUrlParameter("id"), function(data) {
+            $("#loader").css('display', "None");
+            $('.shade').fadeOut();
+            if (data["accepted"]) {
+                // Add title
+                addTitle(data["group"]["title"]);
 
-            // Print out the group members
-            var group_members = data["group"]["members"];
+                // Print out the group members
+                var group_members = data["group"]["members"];
 
-            for (var i = 0; i < group_members.length; i++) {
-                addGroupMember(group_members[i]);
+                for (var i = 0; i < group_members.length; i++) {
+                    addGroupMember(group_members[i]);
+                }
+            } else {
+                // things are very wrong.
+                alert("butts");
             }
-        } else {
-            // things are very wrong.
-            alert("butts");
-        }
-    });
+        });},
+        delay
+    );
 });
 
+/**
+ * Go back to the main groups page.
+ */
+function backButtonClick() {
+    window.location.href = '../home/?id=' + getUrlParameter("id");
+}
 
 /** 
  * Add the HTML for the group's title.
@@ -54,11 +72,11 @@ function addTitle(title) {
             style="font-size: 70px;\
             top: -5px;\
             padding-right: 10px;\
-            left: -20px;"></span>' 
+            left: -20px;"\
+            onclick="backButtonClick()"></span>' 
         + title
     );      
 }
-
 
 /**
  * Add the HTML for the given group member
@@ -90,7 +108,7 @@ function addGroupMember(member) {
                 <div class="ping-current-event-location">'
                     + member["group_status"]["status"]["location_name"] +
                 '</div>\
-                <div class="ping-send">\
+                <div class="ping-send" onclick="pingbuttonclick($(this))">\
                     Send Ping\
                 </div>\
             </div>\

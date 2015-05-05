@@ -203,12 +203,6 @@ function addSwipeFunction() {
     );
 }
 
-// function called when the ping button is pressed
-function pingbuttonclick(div)
-{
-
-}
-
 // function called when the group status button is pressed
 function statusButtonClick(div)
 {

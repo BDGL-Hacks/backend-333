@@ -51,6 +51,16 @@ function api_groups_currentevent(groupid, eventid, callback) {
         'group': groupid,
         'event': eventid
     };
-    console.log(data);
     $.post(url, data, callback);
 }
+
+// Send ping
+function api_groups_ping_send(group, user, callback) {
+    var url = "/api/groups/ping/send";
+    var data = {
+        'group': group,
+        'user': user,
+    }
+    $.post(url, data, callback);
+}
+
