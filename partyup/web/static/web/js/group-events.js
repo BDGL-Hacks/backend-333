@@ -3,9 +3,9 @@ function clickOnEvent(div) {
     if(div.hasClass("active-event")){
     } 
     else {
-        $(".active-event").removeClass("active-event").find(".glyphicon").removeClass("glyphicon-ok").addClass("glyphicon-unchecked")
+        $(".active-event").removeClass("active-event").find(".glyphicon-ok").removeClass("glyphicon-ok").addClass("glyphicon-unchecked")
         div.addClass("active-event");
-        button = div.find(".glyphicon");
+        button = div.find(".glyphicon-unchecked");
         button.removeClass("glyphicon-unchecked").addClass("glyphicon-ok");
         
     } 
@@ -30,14 +30,21 @@ $(document).ready(function() {
                         padding-right: 10px;\
                         left: -20px;"></span>'
                         + group['title']);
+                var usersEventID = getUsersEventID(data);
+                console.log(usersEventID);
                 for (var i = 0; i < events.length; i++)
                 {
-                    if (events[i]['id'] === group['current_event']['id'])
+                    if (events[i]['id'] === usersEventID)
                     { 
                         addActiveEventinfo(events[i]); 
                     } else
                     {
                         addEventinfo(events[i]); 
+                    }
+                    if (events[i]['id'] === group['current_event']['id'])
+                    {
+                        $('.event-name:eq(' + i + ')').append('\
+                            <span class="glyphicon glyphicon-screenshot " aria-hidden="true" style="font-size: 60px; top: 10px;"></span>');
                     }
                 }
             } else {
@@ -46,6 +53,45 @@ $(document).ready(function() {
             }
         })}, delay);
 });
+
+function getUsersEventID(data)
+{
+    group = data['group'];
+    var userInfo = -1;
+    var userID = data['user_id'];
+    for (var n = 0; n < group['members'].length; n++)
+    {
+        if (group['members'][n]['id'] == userID)
+        { 
+            userInfo = group['members'][n];
+        }
+    }
+    //console.log(userInfo);
+    //console.log(userInfo['group_status']['status']['id']);
+    //console.log(groups[i]);
+    //console.log(groups[i]['current_event']['id']);
+    return userInfo['group_status']['status']['id'];
+
+}
+
+function addGroupsCurrentEvent(group)
+{
+ $(".group-name").after('\
+            <div class="event-curr" >\
+                    The Group&#8217;s Event\
+                    </div>\
+                <div class="event-info">\
+                    <div class="event-name" style="font-size:60px">'
+                        + group["current_event"]["title"] + '\
+                    </div>\
+                    <div class="event-time">'
+                        + parseTime(group["current_event"]["time"]) + '\
+                    </div>\
+                    <div class="event-location">'
+                        + group["current_event"]["location_name"] + '\
+                    </div>\
+                </div>');
+}
 
 function addActiveEventinfo(eventObj) {
     $(".group-events").append('\
@@ -102,6 +148,7 @@ function groupBackClick(groupid) {
 function setGroupEvent(){
     var eventid = $(".active-event").attr('id');
     var groupid = $(".glyphicon-arrow-left").attr('id');
+    $('#group-event').css('opacity', '.3'); 
     
     api_groups_currentevent(groupid, eventid,'false', function(data) {
         if (data['accepted'])
@@ -113,7 +160,7 @@ function setGroupEvent(){
 function setPersonalEvent(){
     var eventid = $(".active-event").attr('id');
     var groupid = $(".glyphicon-arrow-left").attr('id');
-    
+    $('#your-event').css('opacity', '.3'); 
     api_groups_currentevent(groupid, eventid,'true', function(data) {
         if (data['accepted'])
         {

@@ -13,7 +13,6 @@
     background: rgb(255, 60, 60);
     border: solid;
     border-width: 10px;
-    display: none;
             }
 .event-warning-text {
     display: inline-block;

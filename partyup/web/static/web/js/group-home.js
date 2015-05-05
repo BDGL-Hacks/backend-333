@@ -1,7 +1,7 @@
 
 function carouselClick(div){
       $( ".active-indicator" ).removeClass("active-indicator");
-      console.log(div)
+      //console.log(div)
       div.addClass("active-indicator");
 }
 
@@ -48,14 +48,14 @@ $(document).ready(function() {
                                 userInfo = groups[i]['members'][n];
                             }
                         }
-                        console.log(userInfo);
-                        console.log(userInfo['group_status']['status']['id']);
-                        console.log(groups[i]);
-                        console.log(groups[i]['current_event']['id']);
+                        //console.log(userInfo);
+                        //console.log(userInfo['group_status']['status']['id']);
+                        //console.log(groups[i]);
+                        //console.log(groups[i]['current_event']['id']);
                         if (userInfo['group_status']['status']['id'] != groups[i]['current_event']['id'])
                         {
-                            console.log(i);
-                            addGroupWarning(i);
+                            //console.log(i);
+                            addGroupWarning(i, groups[i]['id']);
                         }
                     }
                     addSwipeFunction();
@@ -86,8 +86,6 @@ function addActiveGroup(group) {
             + group["title"] + '\
             <span class="glyphicon glyphicon-pencil" aria-hidden="true" style="font-size: 50px; margin-left: 40px;"></span>\
             </div>\
-                <div class="event-warning">\
-                </div>\
             <div class="event-curr">\
                     Current Event\
                     </div>\
@@ -120,16 +118,18 @@ function addActiveGroup(group) {
  * Add a warning if the user is not
  * with his group
  */
-function addGroupWarning(numGroup){
-    itemDiv = $(".event-warning:eq(" + numGroup +")")
-    itemDiv.css("display","block");
-    itemDiv.append('\
+function addGroupWarning(numGroup, groupID){
+    console.log(numGroup);
+    itemDiv = $(".group-name:eq(" + numGroup +")")
+    itemDiv.after('\
+            <div class="event-warning" onclick="eventsButtonClick($(this))" id="' + groupID +'">\
         <div class="event-warning-icon">\
              <span class="glyphicon glyphicon-bullhorn" \
         aria-hidden="true" \
         style="  top: 25px; left: 10px;"></span>\
         </div>\
         <div class="event-warning-text"> You are currently not with your group! Tap to update.</div>\
+                </div>\
     ');
 }
 
@@ -143,8 +143,6 @@ function addGroup(group) {
             + group["title"] + '\
             <span class="glyphicon glyphicon-pencil" aria-hidden="true" style="font-size: 50px; margin-left: 40px;"></span>\
             </div>\
-                <div class="event-warning">\
-                </div>\
             <div class="event-curr">\
                     Current Event\
                     </div>\
