@@ -58,19 +58,33 @@ $(document).ready(function() {
                     addGroupMember(group_members[i]);
                     }
                 }
+                if (group_members.length == 1)
+                {
+                    $('.no-members-ping').css('display','block');
+                }
+                else
+                {
+                    $('.event-curr').css('display','block');
+                    $('.ping-members').css('display','block');
+                }
             } else {
                 // things are very wrong.
-                alert("butts");
+                alert("Internal Server Error");
             }
         });},
         delay
     );
 });
 
+function pressAddUsersButton() {
+    $('.no-ping-members').css('opacity','.3');
+    window.location.href = 'http://group-invite?id=' + getUrlParameter("id");
+}
 /**
  * Go back to the main groups page.
  */
 function backButtonClick() {
+    $(".group-name-fixed").css("opacity", ".3");
     window.location.href = '../home/?id=' + getUrlParameter("id");
 }
 
@@ -85,7 +99,7 @@ function addTitle(title) {
             top: -5px;\
             padding-right: 10px;\
             left: -20px;"\
-            onclick="backButtonClick()"></span>' 
+            ></span>' 
         + title
     );      
 }

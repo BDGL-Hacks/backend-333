@@ -7,15 +7,19 @@
 {% endblock extra_head %}
 {% block body %}
     <div class="wrapper">
-        <div class="group-name-fixed">
+        <div class="group-name-fixed" onclick="backButtonClick()">
         </div>
 
-        <div class="event-curr">
+        <div class="event-curr" style="display:none;">
             Ping Users
         </div>
-
-        <div class="ping-members">
+        
+        <div class="ping-members" style="display:none;">
             {# Group members go here #}
+        </div>
+        <div class="no-ping-members" onclick="pressAddUsersButton()">
+            You have no other members in your Group.
+            Press here to invite members. 
         </div>
     </div>
     <div id="loader">

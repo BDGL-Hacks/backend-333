@@ -1,3 +1,13 @@
+.no-ping-members {
+    width: 90%;
+    margin: auto;
+    margin-top: 100px;
+    border-style: solid;
+    background: rgb(255, 60, 60);
+    border-width: 10px;
+    font-size: 80px;
+    display: none;
+}
 .group-name-fixed {
       font-size: 100px;
         text-align: center;
@@ -39,7 +49,7 @@
   float: right;
   width: 70px;
   height: 70px;
-  top: 20px;
+  top: 5px;
   right: 30px;
   border-radius: 40px;
   border: solid;
@@ -47,13 +57,13 @@
   border-width: 5px;  
 }
 .status-good {
-  background: green;
+  background: #4DB788;
 }
 .status-bad {
-	background: red;
+	background: rgb(255, 60, 60);
 }
 .status-neutral {
-	background: yellow;
+	background: #E6C973;
 }
 .ping-info {
 	display: none;
