@@ -146,7 +146,7 @@ class Group(models.Model):
             # Get standard User_Profile information as well as information
             # about the user's status in the group.
             info = member.to_dict()
-            ugi = User_Group_info.objects.get(user_profile=member)
+            ugi = User_Group_info.objects.get(user_profile=member, group=self)
             info['group_status'] = {
                 'status': ugi.status.to_dict_sparse(),
                 'indicator': ugi.indicator,
@@ -162,6 +162,7 @@ class Group(models.Model):
             current_event = events[0]
         return {
             'id': self.id,
+            'created_by': self.created_by.to_dict(),
             'title': self.title,
             'members': members,
             'events': events,

@@ -16,6 +16,9 @@ $(document).ready(function() {
         api_groups_get("attending", function(data) {
             $("#loader").css('display', "None");
             $('.shade').fadeOut();
+            var activeID = getUrlParameter('id');
+            // if activeID does not exist, then set it to -1
+            if (!activeID) {activeID = -1;};
             if (data["accepted"]) {
                 var groups = data["groups"];
                 var numGroups = groups.length;
@@ -25,7 +28,9 @@ $(document).ready(function() {
                 } else {
                     // Print out all of the groups
                     for (var i = 0; i < numGroups; i++) {
-                        if (i == 0) {
+                        // if activeID is true, set groupID active
+                        // else have the first group active
+                        if ((groups[i]['id'] == activeID) || (activeID == -1 && i == 0)) {
                             // Mark first group as active
                             addActiveGroup(groups[i]);
                             if (numGroups > 1) {
@@ -55,14 +60,6 @@ function noGroupsPage() {
 }
 
 /**
- * Convert time in the form "2015-04-16 19:49:00+00:00" to 
- * "3:49 pm Thursday April 16" using moment.js
- */
-function parseTime(time) {
-    return moment(time).format("LLLL");
-}
-
-/**
  * Write the html for an active group.
  */
 function addActiveGroup(group) {
@@ -87,13 +84,13 @@ function addActiveGroup(group) {
                         + group["current_event"]["location_name"] + '\
                     </div>\
                 </div>\
-                <div class="chat-button">\
+                <div class="chat-button" id="'+ group["id"] + '"  >\
                     Chat\
                 </div>\
-                <div class="ping-button">\
+                <div class="ping-button" id="'+ group["id"] + '" onclick="statusButtonClick($(this))">\
                     Group&#8217;s Status\
                 </div>\
-                <div class="edit-button">\
+                <div class="edit-button" id="'+ group["id"] + '" onclick="eventsButtonClick($(this))">\
                     Group&#8217;s Events\
                 </div>\
             </div>\
@@ -108,13 +105,13 @@ function addGroupWarning(numGroup){
     itemDiv = $(".event-warning:eq(" + numGroup +")")
     itemDiv.css("display","block");
     itemDiv.append('\
-                <div class="event-warning-icon">\
-                     <span class="glyphicon glyphicon-bullhorn" \
-                aria-hidden="true" \
-                style="  top: 25px; left: 10px;"></span>\
-                </div>\
-                <div class="event-warning-text"> You are currently not with your group! Tap to update.</div>\
-                ');
+        <div class="event-warning-icon">\
+             <span class="glyphicon glyphicon-bullhorn" \
+        aria-hidden="true" \
+        style="  top: 25px; left: 10px;"></span>\
+        </div>\
+        <div class="event-warning-text"> You are currently not with your group! Tap to update.</div>\
+    ');
 }
 
 /**
@@ -142,13 +139,13 @@ function addGroup(group) {
                         + group["current_event"]["location_name"] + '\
                     </div>\
                 </div>\
-                <div class="chat-button">\
+                <div class="chat-button" id="'+ group["id"] + '" >\
                     Chat\
                 </div>\
-                <div class="ping-button">\
+                <div class="ping-button" id="'+ group["id"] + '" onclick="eventsButtonClick($(this))" >\
                     Group&#8217;s Status\
                 </div>\
-                <div class="edit-button">\
+                <div class="edit-button" id="'+ group["id"] + '" onclick="eventsButtonClick($(this))" >\
                     Group&#8217;s Events\
                 </div>\
             </div>\
@@ -204,4 +201,24 @@ function addSwipeFunction() {
                 '});\n' +
         '</script>'
     );
+}
+
+// function called when the ping button is pressed
+function pingbuttonclick(div)
+{
+
+}
+
+// function called when the group status button is pressed
+function statusButtonClick(div)
+{
+    groupid = div.attr('id');
+    window.location.href = '../ping/?id=' + groupid;
+}
+
+// function called when the group events button is pressed
+function eventsButtonClick(div)
+{
+    groupid = div.attr('id');
+    window.location.href = '../events/?id=' + groupid;
 }

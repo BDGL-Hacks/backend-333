@@ -1,5 +1,4 @@
 // Library for API calls
-
 // Get groups of given type for the current user. type may be set to "attending",
 // "created", or "invited". Call the given callback function on success, which 
 // allows the client to manipulate the JSON returned by the server.
@@ -42,5 +41,16 @@ function api_accounts_login(username, password, deviceID, callback) {
 function api_groups_getid(id, callback) {
     var url = "/api/groups/getid";
     var data = {'id': id};
+    $.post(url, data, callback);
+}
+
+// changes a group's current event. Should only be done by the admin
+function api_groups_currentevent(groupid, eventid, callback) {
+    var url = "/api/groups/currentevent";
+    var data = {
+        'group': groupid,
+        'event': eventid
+    };
+    console.log(data);
     $.post(url, data, callback);
 }
