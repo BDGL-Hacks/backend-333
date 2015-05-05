@@ -3,7 +3,7 @@
 {% block extra_head %}
 	<link rel="stylesheet" type="text/css" href="{% static 'web/css/group-home.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'web/css/group-ping.css' %}">
-	<script src="{% static 'web/js/group-home.js' %}"></script>
+    <script src="{% static 'web/js/group-ping.js' %}"></script>
 {% endblock extra_head %}
 {% block body %}
     <div class="logo">
@@ -12,13 +12,6 @@
 
     <div class="wrapper">
         <div class="group-name-fixed">
-            <span class="glyphicon glyphicon-arrow-left   "
-                  aria-hidden="true"
-                  style="font-size: 70px;
-                  top: -5px;
-                  padding-right: 10px;
-                  left: -20px;"></span> 
-            Cos 333 Group	
         </div>
 
         <div class="event-curr">
@@ -26,60 +19,7 @@
         </div>
 
         <div class="ping-members">
-            <div class="ping-member ">
-                <div class="ping-member-name" onclick="pingMemberClick($(this))">
-                    <span class="glyphicon glyphicon-menu-right  " aria-hidden="true"></span> 
-                    David Gilhooley
-                    <div class="ping-members-status"></div>
-                </div>
-                <div class="ping-info">
-                    <div class="ping-current-event">
-                        Current Location
-                    </div>
-                    <div class="ping-current-event-location">
-                        The Library
-                    </div>
-                    <div class="ping-send">
-                        Send Ping
-                    </div>
-                </div>
-            </div>
-            <div class="ping-member ">
-                <div class="ping-member-name" onclick="pingMemberClick($(this))">
-                    <span class="glyphicon glyphicon-menu-right  " aria-hidden="true"></span> 
-                    Lance Goodridge
-                    <div class="ping-members-status status-neutral"></div>
-                </div>
-                <div class="ping-info">
-                    <div class="ping-current-event">
-                        Current Location
-                    </div>
-                    <div class="ping-current-event-location">
-                        The Library
-                    </div>
-                    <div class="ping-send">
-                        Send Ping
-                    </div>
-                </div>
-            </div>
-            <div class="ping-member ">
-                <div class="ping-member-name" onclick="pingMemberClick($(this))">
-                    <span class="glyphicon glyphicon-menu-right  " aria-hidden="true"></span> 
-                    Blake Lawson
-                    <div class="ping-members-status status-bad"></div>
-                </div>
-                <div class="ping-info">
-                    <div class="ping-current-event">
-                        Current Location
-                    </div>
-                    <div class="ping-current-event-location">
-                        The Library
-                    </div>
-                    <div class="ping-send">
-                        Send Ping
-                    </div>
-                </div>
-            </div>
+            {# Group members go here #}
         </div>
-
+    </div>
 {% endblock body %}
