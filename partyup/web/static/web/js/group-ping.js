@@ -54,7 +54,9 @@ $(document).ready(function() {
                 var group_members = data["group"]["members"];
 
                 for (var i = 0; i < group_members.length; i++) {
+                    if (group_members[i]['id'] != data['user_id']) {
                     addGroupMember(group_members[i]);
+                    }
                 }
             } else {
                 // things are very wrong.
