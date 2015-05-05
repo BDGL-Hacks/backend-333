@@ -64,7 +64,7 @@ function noGroupsPage() {
 function addActiveGroup(group) {
     $(".carousel-inner").append('\
         <div class="item active">\
-            <div class="group-name">'
+            <div class="group-name" id="'+ group["id"] + '" onclick="groupEditButtonClick($(this));">'
             + group["title"] + '\
             <span class="glyphicon glyphicon-pencil" aria-hidden="true" style="font-size: 50px; margin-left: 40px;"></span>\
             </div>\
@@ -84,7 +84,7 @@ function addActiveGroup(group) {
                         + group["current_event"]["location_name"] + '\
                     </div>\
                 </div>\
-                <div class="chat-button" id="'+ group["id"] + '"  >\
+                <div class="chat-button" id="'+ group["id"] + '" + onclick="chatButtonClick($(this));" >\
                     Chat\
                 </div>\
                 <div class="ping-button" id="'+ group["id"] + '" onclick="statusButtonClick($(this))">\
@@ -97,6 +97,7 @@ function addActiveGroup(group) {
         <div>\
     ');        
 }
+
 /**
  * Add a warning if the user is not
  * with his group
@@ -120,8 +121,9 @@ function addGroupWarning(numGroup){
 function addGroup(group) {
     $(".carousel-inner").append('\
         <div class="item">\
-            <div class="group-name">'
+            <div class="group-name" id="'+ group["id"] + '" onclick="groupEditButtonClick($(this));">'
             + group["title"] + '\
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true" style="font-size: 50px; margin-left: 40px;"></span>\
             </div>\
                 <div class="event-warning">\
                 </div>\
@@ -139,7 +141,7 @@ function addGroup(group) {
                         + group["current_event"]["location_name"] + '\
                     </div>\
                 </div>\
-                <div class="chat-button" id="'+ group["id"] + '" >\
+                <div class="chat-button" id="'+ group["id"] + '" onclick="chatButtonClick($(this));" >\
                     Chat\
                 </div>\
                 <div class="ping-button" id="'+ group["id"] + '" onclick="eventsButtonClick($(this))" >\
@@ -203,6 +205,16 @@ function addSwipeFunction() {
     );
 }
 
+function groupEditButtonClick(div)
+{
+    groupid = div.attr('id');
+    window.location.href = "http://groups-edit?" + groupid;
+}
+function chatButtonClick(div)
+{
+    groupid = div.attr('id');
+    window.location.href = "http://groups-chat?" + groupid;
+}
 // function called when the group status button is pressed
 function statusButtonClick(div)
 {
