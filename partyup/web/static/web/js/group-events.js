@@ -96,13 +96,14 @@ function addEventinfo(eventObj) {
 }
 
 function groupBackClick(groupid) {
+    $(".group-name").css("opacity", ".3");
     window.location.href = '../home/?id=' + groupid;
 }
 function setGroupEvent(){
     var eventid = $(".active-event").attr('id');
     var groupid = $(".glyphicon-arrow-left").attr('id');
     
-    api_groups_currentevent(groupid, eventid, function(data) {
+    api_groups_currentevent(groupid, eventid,'false', function(data) {
         if (data['accepted'])
         {
             window.location.href = '../home?id=' + groupid;
@@ -110,5 +111,13 @@ function setGroupEvent(){
     });
 }
 function setPersonalEvent(){
-    console.log("Personal Event!");
+    var eventid = $(".active-event").attr('id');
+    var groupid = $(".glyphicon-arrow-left").attr('id');
+    
+    api_groups_currentevent(groupid, eventid,'true', function(data) {
+        if (data['accepted'])
+        {
+            window.location.href = '../home?id=' + groupid;
+        }
+    });
 }

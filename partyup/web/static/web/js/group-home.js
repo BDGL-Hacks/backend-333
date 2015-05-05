@@ -21,6 +21,7 @@ $(document).ready(function() {
             if (data["accepted"]) {
                 var groups = data["groups"];
                 var numGroups = groups.length;
+                var userID = data['user_id'];
                 if (numGroups == 0) {
                     // Redirect to some other page in the app. Not sure about what to do.
                     noGroupsPage();
@@ -38,6 +39,23 @@ $(document).ready(function() {
                         } else {
                             addGroup(groups[i]);
                             addIndicator(i);
+                        }
+                        var userInfo = 0;
+                        for (var n = 0; n < groups[i]['members'].length; n++)
+                        {
+                            if (groups[i]['members'][n]['id'] == userID)
+                            { 
+                                userInfo = groups[i]['members'][n];
+                            }
+                        }
+                        console.log(userInfo);
+                        console.log(userInfo['group_status']['status']['id']);
+                        console.log(groups[i]);
+                        console.log(groups[i]['current_event']['id']);
+                        if (userInfo['group_status']['status']['id'] != groups[i]['current_event']['id'])
+                        {
+                            console.log(i);
+                            addGroupWarning(i);
                         }
                     }
                     addSwipeFunction();
@@ -208,17 +226,20 @@ function addSwipeFunction() {
 function groupEditButtonClick(div)
 {
     groupid = div.attr('id');
+    div.css('opacity', '.3');
     window.location.href = "http://groups-edit?" + groupid;
 }
 function chatButtonClick(div)
 {
     groupid = div.attr('id');
+    div.css('opacity', '.3');
     window.location.href = "http://groups-chat?" + groupid;
 }
 // function called when the group status button is pressed
 function statusButtonClick(div)
 {
     groupid = div.attr('id');
+    div.css('opacity', '.3');
     window.location.href = '../ping/?id=' + groupid;
 }
 
@@ -226,5 +247,6 @@ function statusButtonClick(div)
 function eventsButtonClick(div)
 {
     groupid = div.attr('id');
+    div.css('opacity', '.3');
     window.location.href = '../events/?id=' + groupid;
 }

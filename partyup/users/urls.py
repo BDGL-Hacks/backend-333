@@ -9,6 +9,7 @@ urlpatterns = patterns(
     url(r'^users/picture/upload', accounts.user_picture_upload),
     url(r'^users/register', accounts.register, name='register'),
     url(r'^users/search', accounts.user_search),
+    url(r'^users/ping/get', accounts.user_ping_get),
 
     url(r'^invites/respond', invites.respond_invite),
 

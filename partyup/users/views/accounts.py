@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, authenticate
 from hashlib import md5
-from users.models import User_Profile
+from users.models import User_Profile, Ping
 from users.views.push import add_device
 import pictures
 
@@ -220,3 +220,27 @@ def user_picture_delete(request):
     profile = User_Profile.objects.get(user=request.user)
     pictures.delete_user(profile)
     return JsonResponse({'accepted': True})
+
+@csrf_exempt
+def user_ping_get(request):
+    '''
+    Return all existing pings for the given user.
+    '''
+    response = {'accepted': False}
+    error = _validate_request(request)
+    if error:
+        return error
+
+    # Validate the request
+    user = request.user.user_profile
+
+
+    pings = Ping.objects.filter(user=user)
+    results = []
+    for p in pings:
+        results.append(p.to_dict())
+
+    # Exit success
+    response['accepted'] = True
+    response['pings'] = results
+    return JsonResponse(response)

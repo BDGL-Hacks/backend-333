@@ -14,7 +14,8 @@ function api_groups_get(type, callback) {
                 // callback function.
                 new_data = {
                     accepted: data["accepted"],
-                    groups: data[type]
+                    groups: data[type],
+                    user_id: data['user_id']
                 };
                 callback(new_data);
             } else {
@@ -45,11 +46,12 @@ function api_groups_getid(id, callback) {
 }
 
 // changes a group's current event. Should only be done by the admin
-function api_groups_currentevent(groupid, eventid, callback) {
+function api_groups_currentevent(groupid, eventid, personal, callback) {
     var url = "/api/groups/currentevent";
     var data = {
         'group': groupid,
-        'event': eventid
+        'event': eventid,
+        'personal': personal
     };
     $.post(url, data, callback);
 }

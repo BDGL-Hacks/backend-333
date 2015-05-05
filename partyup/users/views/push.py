@@ -50,6 +50,8 @@ def send_message(user, message, badge=None, extra=None):
     Sends a message to a single user
     '''
     device = user.device
+    if not device:
+        return
     if not badge and extra:
         device.send_message(message, extra=extra)
     if badge and not extra:

@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from invites import group_invite
 from push import send_group_message, send_message
-from users.models import Event, Group, Channel, User_Group_info, Ping
+from users.models import Event, Group, Channel, User_Group_info, Ping, User_Group_info
 import pictures
 
 
@@ -174,6 +174,7 @@ def group_get(request):
         groups = [group.to_dict() for group in result]
         response[t] = groups
 
+    response['user_id'] = user.id
     response['accepted'] = True
     return JsonResponse(response)
 
@@ -239,6 +240,7 @@ def group_change_currentevent(request):
     user = request.user.user_profile
     groupID = request.POST.get('group', '')
     eventID = request.POST.get('event', '')
+    personal = request.POST.get('personal', '')
     if not eventID or not groupID:
         response['error'] = 'MISSING INFO'
         return JsonResponse(response)
@@ -255,11 +257,6 @@ def group_change_currentevent(request):
         response['error'] = 'You do are not in the group'
         return JsonResponse(response)
 
-    # Make sure the user is the admin.
-    if group.created_by != user:
-        response['error'] = 'Invalid permissions'
-        return JsonResponse(response)
-
     # Check that the event is in the group itinerary
     event = group.events.filter(id=eventID)
     if not event:
@@ -267,6 +264,36 @@ def group_change_currentevent(request):
         response['accepted'] = False
         return JsonResponse(response)
     event = event[0]
+
+    # DAVID
+    # Code for changing personal event
+    if (personal == 'True' or personal == 'true'):
+        print (event)
+        ugi = User_Group_info.objects.filter(user_profile=user, group=group)
+        ugi = ugi[0]
+        ugi.status = event
+        ugi.indicator = 1
+        ugi.save()
+        users = group.group_members.all().exclude(user=user.user)
+        message = user.user.email + ': Is going to ' + group.current_event.title
+        extra = {
+            'type': 'location-change',
+            'content': {
+                'group': group.id,
+                'new_location': group.current_event.to_dict_sparse(),
+            },
+        }
+        send_group_message(users, message, extra=extra)
+
+        # return successfully
+        response['accepted'] = True
+        return JsonResponse(response)
+
+    # Code for changing group event
+    # Make sure the user is the admin.
+    if group.created_by != user:
+        response['error'] = 'Invalid permissions'
+        return JsonResponse(response)
 
     # Add the event as current
     group.current_event = event
@@ -280,7 +307,6 @@ def group_change_currentevent(request):
         member.indicator = 1
         member.save()
 
-    # TODO send push notification/alert
     # Send notifications to all but the person admin
     users = group.group_members.all().exclude(user=user.user)
     message = group.title + ': Going to ' + group.current_event.title
