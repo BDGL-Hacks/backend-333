@@ -87,13 +87,13 @@ function addActiveGroup(group) {
                         + group["current_event"]["location_name"] + '\
                     </div>\
                 </div>\
-                <div class="chat-button">\
+                <div class="chat-button"id="'+ group["id"] + '"  >\
                     Chat\
                 </div>\
-                <div class="ping-button">\
+                <div class="ping-button" id="'+ group["id"] + '" onclick="statusButtonClick($(this))">\
                     Group&#8217;s Status\
                 </div>\
-                <div class="edit-button">\
+                <div class="edit-button" id="'+ group["id"] + '" onclick="eventsButtonClick($(this))">\
                     Group&#8217;s Events\
                 </div>\
             </div>\
@@ -142,13 +142,13 @@ function addGroup(group) {
                         + group["current_event"]["location_name"] + '\
                     </div>\
                 </div>\
-                <div class="chat-button">\
+                <div class="chat-button" id="'+ group["id"] + '" >\
                     Chat\
                 </div>\
-                <div class="ping-button">\
+                <div class="ping-button" id="'+ group["id"] + '" >\
                     Group&#8217;s Status\
                 </div>\
-                <div class="edit-button">\
+                <div class="edit-button" id="'+ group["id"] + '" >\
                     Group&#8217;s Events\
                 </div>\
             </div>\
@@ -208,6 +208,7 @@ function addSwipeFunction() {
     );
 }
 
+// function for the ping page. It belongs here though, show it some love
 function pingMemberClick(div){
 	if(div.hasClass("ping-member-name")){
 	// slide all of the other active ones uo 
@@ -227,4 +228,24 @@ function pingMemberClick(div){
 	div.find("span").removeClass("glyphicon-menu-down").addClass("glyphicon-menu-right")
 	div.next().slideUp()
 	}
+}
+
+// function called when the ping button is pressed
+function pingbuttonclick(div)
+{
+
+}
+
+// function called when the group status button is pressed
+function statusButtonClick(div)
+{
+    groupid = div.attr('id');
+    window.location.href = '../ping/?id=' + groupid;
+}
+
+// function called when the group events button is pressed
+function eventsButtonClick(div)
+{
+    groupid = div.attr('id');
+    window.location.href = '../events/?id=' + groupid;
 }

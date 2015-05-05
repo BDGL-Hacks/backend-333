@@ -14,9 +14,6 @@ function getUrlParameter(sParam)
 
 function clickOnEvent(div) {
     if(div.hasClass("active-event")){
-        div.removeClass("active-event");
-        button = div.find(".glyphicon");
-        button.removeClass("glyphicon-ok").addClass("glyphicon-unchecked");
     } 
     else {
         $(".active-event").removeClass("active-event").find(".glyphicon").removeClass("glyphicon-ok").addClass("glyphicon-unchecked")
@@ -29,22 +26,28 @@ function clickOnEvent(div) {
 
 $(document).ready(function() {
     var delay = 400;
+    var groupid = getUrlParameter('id');
     setTimeout(function() {
-        api_groups_getid(getUrlParameter('id'), function(data) {
+        api_groups_getid(groupid, function(data) {
             $("#loader").css('display', "None");
             $('.shade').fadeOut();
+            $('.group-name').attr('onclick', 'groupBackClick(' + groupid +')');
             if (data["accepted"]) {
                 var group = data["group"];
                 var events = group["events"];
                 $('.group-name').append('\
-                        <span class="glyphicon glyphicon-arrow-left   " aria-hidden="true" style="font-size: 70px;\
+                        <span class="glyphicon glyphicon-arrow-left   " aria-hidden="true" id="' + groupid + '"style="font-size: 70px;\
                         top: -5px;\
                         padding-right: 10px;\
                         left: -20px;"></span>'
                         + group['title']);
                 for (var i = 0; i < events.length; i++)
                 {
-                   addEventinfo(events[i]); 
+                    addEventinfo(events[i]); 
+                    if (events[i]['id'] === group['current_event']['id'])
+                    { 
+
+                    } 
                 }
             } else {
                 // Something went wrong in the api call.
@@ -53,16 +56,40 @@ $(document).ready(function() {
         })}, delay);
 });
 
+function addActiveEventinfo(eventObj) {
+    $(".group-events").append('\
+        <div class="event-info active-event" style="border-top:none" onclick="clickOnEvent($(this))" id="' + eventObj['id'] + '">\
+            <div class="event-choose-button">\
+                <span class="glyphicon  glyphicon-ok " aria-hidden="true" style="font-size: 130px;\
+                left: -20px;\
+                top: 10px; \
+                "></span>\
+            </div>\
+            <div class="inner-event-info">\
+                <div class="event-name" style="font-size:60px;">'
+                    + eventObj['title'] + '\
+                </div>\
+                <div class="event-time" style="font-size:15px;">'
+                    + parseTime(eventObj['time']) + '\
+                </div>\
+                <div class="event-location" style="font-size:60px;">'
+                    + eventObj['location_name'] + '\
+                </div>\
+            </div>\
+        </div>\
+            ');
+}
+
 function addEventinfo(eventObj) {
     $(".group-events").append('\
-        <div class="event-info" style="border-top:none" onclick="clickOnEvent($(this))">\
+        <div class="event-info" style="border-top:none" onclick="clickOnEvent($(this))" id="' + eventObj['id'] + '">\
             <div class="event-choose-button">\
                 <span class="glyphicon  glyphicon-unchecked " aria-hidden="true" style="font-size: 130px;\
                 left: -20px;\
                 top: 10px; \
                 "></span>\
             </div>\
-            <div class="inner-event-info">\
+            <div class="inner-event-info" >\
                 <div class="event-name" style="font-size:60px;">'
                     + eventObj['title'] + '\
                 </div>\
@@ -82,4 +109,22 @@ function addEventinfo(eventObj) {
  */
 function parseTime(time) {
     return moment(time).format("LLLL");
+}
+
+function groupBackClick(groupid) {
+    window.location.href = '../home/?id=' + groupid;
+}
+function setGroupEvent(){
+    var eventid = $(".active-event").attr('id');
+    var groupid = $(".glyphicon-arrow-left").attr('id');
+    
+    api_groups_currentevent(groupid, eventid, function(data) {
+        if (data['accepted'])
+        {
+            window.location.href = '../home'
+        }
+    });
+}
+function setPersonalEvent(){
+    console.log("Personal Event!");
 }

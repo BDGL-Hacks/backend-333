@@ -95,3 +95,4 @@ STATIC_URL = '/static/'
 
 # Name of AWS S3 bucket. Used for picture uploading, downloading, and etc.
 # S3_BUCKET = 'partyup'
+DESTINATION = ''
