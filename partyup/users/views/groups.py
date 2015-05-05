@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from invites import group_invite
-from push import send_group_message
+from push import send_group_message, send_message
 from users.models import Event, Group, Channel, User_Group_info
 import pictures
 
@@ -340,6 +340,101 @@ def group_update_status(request):
     user_info.save()
 
     # return successfully
+    response['accepted'] = True
+    return JsonResponse(response)
+
+
+@csrf_exempt
+def group_ping_send(request):
+    '''
+    Ping a user in a group. Basically, check if the user is okay. Takes two
+    parameter, "user" and "group". When a user is pinged, their indicator is
+    set to 2 (RED) until the user responds.
+    '''
+    response = {'accepted': False}
+    error = _validate_request(request)
+    if error:
+        return error
+
+    user = request.user.user_profile
+    groupID = request.POST.get('group', '')
+    pingID = request.POST.get('user', '')
+
+    # Lots of validation to follow
+    if not groupID or not pingID:
+        response['error'] = 'MISSING INFO'
+        return JsonResponse(response)
+
+    # Check that given parameters correspond to things that exist
+    group = Group.objects.get(pk=groupID)
+    ping_info = User_Group_info.objects.filter(user_profile__id=pingID, group__id=groupID)
+    if not group or not ping_info:
+        response['error'] = 'Invalid parameters'
+        return JsonResponse(response)
+    ping_info = ping_info[0]
+    # Make sure user calling this function is in the group
+    if not group.group_members.all().filter(user=user.user):
+        response['error'] = 'Invalid permissions'
+        return JsonResponse(response)
+
+    # Send push notification
+    message = 'Are you okay?'
+    extra = {
+        'type': 'ping',
+        'content': {
+            'group': group.id,
+        },
+    }
+    send_message(ping_info.user_profile, message, extra=extra)
+
+    # Update the user's status to RED
+    ping_info.indicator = 2
+    ping_info.save()
+
+    # Exit success
+    response['accepted'] = True
+    return JsonResponse(response)
+
+
+@csrf_exempt
+def group_ping_respond(request):
+    '''
+    Respond to a ping. Returns the user's indicator to what it would normally
+    be. Takes two parameters, the id of the group that the ping is from and
+    the user's response.
+    '''
+    response = {'accepted': False}
+    error = _validate_request(request)
+    if error:
+        return error
+
+    user = request.user.user_profile
+    groupID = request.POST.get('group', '')
+    accept = request.POST.get('response', '')
+    if not (groupID and accept):
+        response['error'] = 'MISSING INFO'
+        return JsonResponse(response)
+
+    # Validate groupID
+    user_info = User_Group_info.objects.filter(user_profile__id=user.id, group__id=groupID)
+    if not user_info:
+        response['error'] = 'Invalid group id'
+        return JsonResponse(response)
+    user_info = user_info[0]
+
+    # Update the user's indicator
+    if accept == 'True' or accept == 'true':
+        if user_info.status == user_info.group.current_event:
+            # Set status to GREEN
+            user_info.indicator = 0
+        else:
+            user_info.indicator = 1
+        user_info.save()
+    else:
+        # The user's indicator is red and should remain so
+        pass
+
+    # Exit success
     response['accepted'] = True
     return JsonResponse(response)
 
