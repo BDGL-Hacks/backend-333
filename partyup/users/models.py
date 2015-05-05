@@ -121,6 +121,18 @@ class Event(models.Model):
         }
 
 
+class Ping(models.Model):
+    user = models.ForeignKey(User_Profile)
+    response = models.BooleanField(default=False)
+    time = models.DateTimeField(default=datetime.now)
+
+    def to_dict(self):
+        return {
+            'user': self.user.to_dict(),
+            'response': self.response,
+        }
+
+
 class Group(models.Model):
     title = models.CharField(max_length=100)
     date_created = models.DateTimeField('date published', default=datetime.now)
@@ -128,6 +140,7 @@ class Group(models.Model):
     # People in the group
     group_members = models.ManyToManyField(User_Profile, related_name='group_members', through='User_Group_info')
     invited_members = models.ManyToManyField(User_Profile, related_name='invited_members')
+    pings = models.ManyToManyField(Ping, related_name='ping')
     '''
     Night/itinerary
     '''
