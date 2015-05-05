@@ -142,6 +142,7 @@ def group_getid(request):
     response['accepted'] = True
     response['group'] = group.to_dict()
     response['group']['is_admin'] = response['group']['created_by']['id'] == user.id
+    response['user_id'] = user.id
     return JsonResponse(response)
 
 
