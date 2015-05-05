@@ -31,7 +31,7 @@ def respond_invite(request):
     '''
     A view to respond to an invite
     POST request needs
-       obj_type = {event, group}
+       obj_type = {event, group, ping}
        accept   = {true, false}
     '''
     error = _validate_request(request)

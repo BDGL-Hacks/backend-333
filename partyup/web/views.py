@@ -15,7 +15,8 @@ def groups_home(request):
 
 
 def groups_events(request):
-    return render(request, 'web/group-events.html', {'server': settings.DESTINATION})
+    return render(request, 'web/group-events.html')
+
 
 def groups_ping(request):
     return render(request, 'web/group-ping.html')
