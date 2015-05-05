@@ -1,8 +1,9 @@
+from datetime import datetime
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from invites import group_invite
 from push import send_group_message, send_message
-from users.models import Event, Group, Channel, User_Group_info
+from users.models import Event, Group, Channel, User_Group_info, Ping
 import pictures
 
 
@@ -347,6 +348,43 @@ def group_update_status(request):
 
 
 @csrf_exempt
+def group_ping_get(request):
+    '''
+    Return all existing pings for the given group.
+    '''
+    response = {'accepted': False}
+    error = _validate_request(request)
+    if error:
+        return error
+
+    # Validate the request
+    user = request.user.user_profile
+    groupID = request.POST.get('group', '')
+    if not groupID:
+        response['error'] = 'MISSING INFO'
+        return JsonResponse(response)
+
+    group = Group.objects.get(pk=groupID)
+    if not group:
+        response['error'] = 'Invalid parameters'
+        return JsonResponse(response)
+
+    if not group.group_members.filter(id=user.id):
+        response['error'] = 'Invalid permissions'
+        return JsonResponse(request)
+
+    pings = group.pings.all()
+    results = []
+    for p in pings:
+        results.append(p.to_dict())
+
+    # Exit success
+    response['accepted'] = True
+    response['pings'] = results
+    return JsonResponse(response)
+
+
+@csrf_exempt
 def group_ping_send(request):
     '''
     Ping a user in a group. Basically, check if the user is okay. Takes two
@@ -378,6 +416,19 @@ def group_ping_send(request):
     if not group.group_members.all().filter(user=user.user):
         response['error'] = 'Invalid permissions'
         return JsonResponse(response)
+
+    # Create ping if it doesn't already exist
+    p = group.pings.filter(user__id=ping_info.user_profile.id)
+    if p:
+        p = p[0]
+        p.response = False
+        p.time = datetime.now()
+        p.save()
+    else:
+        p = Ping(user=ping_info.user_profile)
+        p.save()
+        group.pings.add(p)
+        group.save()
 
     # Send push notification
     message = 'Are you okay?'
@@ -424,6 +475,12 @@ def group_ping_respond(request):
         return JsonResponse(response)
     user_info = user_info[0]
 
+    ping = Group.objects.get(pk=groupID).pings.filter(user__id=user.id)
+    if not ping:
+        response['error'] = 'No ping for user'
+        return JsonResponse(response)
+    ping = ping[0]
+
     # Update the user's indicator
     if accept == 'True' or accept == 'true':
         if user_info.status == user_info.group.current_event:
@@ -432,6 +489,9 @@ def group_ping_respond(request):
         else:
             user_info.indicator = 1
         user_info.save()
+
+        ping.response = True
+        ping.save()
     else:
         # The user's indicator is red and should remain so
         pass
