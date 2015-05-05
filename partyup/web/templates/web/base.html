@@ -26,48 +26,6 @@
 </head>
 <body>
     <div total-container="total-container" >
-        {% block dropdown %}
-        <div class=shade onclick="$('.dropdown').hide('slide', {
-                         direction : 'right'
-                         }, 500); $('.shade').fadeOut();"></div>
-        <div class="dropdown" onclick="$(this).hide('slide', {
-                              direction : 'right'
-                              }, 500); $('.shade').fadeOut();">
-            <div class="dropdown-option">
-                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                Search Users	
-            </div>
-            <div class="dropdown-option">
-                <span class="glyphicon glyphicon-bell" aria-hidden="true"></span>
-                Notifications
-            </div>
-            <div class="dropdown-option">
-                <span class="glyphicon glyphicon-sunglasses"  aria-hidden="true"></span>
-                View Groups
-            </div>
-            <div class="dropdown-option">
-                <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
-                View Events
-            </div>
-            <div class="dropdown-option"
-                 style="border-top: solid;
-                 border-bottom: none;
-                 position: absolute;
-                 bottom: 0px;
-                 width: 100%;">
-                <span class="glyphicon glyphicon-fire" aria-hidden="true"></span>
-                Logout
-            </div>
-        </div>
-        {% endblock %}
-
-        {% block nav_bar %}
-        <div class="logo">
-            PartyUp 
-            <span class="glyphicon glyphicon-th-list dropdown-icon" aria-hidden="true" onclick="$('.dropdown').show('slide', { direction: 'right'}, 500); $('.shade').fadeIn()"></span>
-        </div>
-        {% endblock %}
-
         {% block body %}{% endblock %}
     </div>
 </body>
