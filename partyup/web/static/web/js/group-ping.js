@@ -21,10 +21,20 @@ function pingMemberClick(div) {
 }
 
 // function called when the ping button is pressed
-function pingbuttonclick(div) {
-    
+function pingbuttonclick(groupid, userid) {
+    api_groups_ping_send(groupid, userid, function(data) {
+        // Change status and disable button
+        if (data["accepted"]) {
+            var status = $("#member-" + userid).find($(".ping-members-status"));
+            status.addClass("status-bad");
 
-
+            var button = $("#ping-" + userid);
+            button.text("Sent");
+            button.css("background", "gray");
+        } else {
+            alert("ass");
+        }
+    });
 }
 
 /**
@@ -95,7 +105,7 @@ function addGroupMember(member) {
 
     // Generate the html
     $(".ping-members").append('\
-        <div class="ping-member ">\
+        <div class="ping-member" id="member-' + member["id"] + '">\
             <div class="ping-member-name" onclick="pingMemberClick($(this))">\
                 <span class="glyphicon glyphicon-menu-right  " aria-hidden="true"></span>'
                 + member['first_name'] + ' ' + member['last_name'] +
@@ -108,7 +118,7 @@ function addGroupMember(member) {
                 <div class="ping-current-event-location">'
                     + member["group_status"]["status"]["location_name"] +
                 '</div>\
-                <div class="ping-send" onclick="pingbuttonclick($(this))">\
+                <div class="ping-send" id="ping-' + member["id"] + '" onclick="pingbuttonclick(' + getUrlParameter("id") + ', ' + member["id"] + ')">\
                     Send Ping\
                 </div>\
             </div>\
