@@ -77,7 +77,6 @@ $(document).ready(function() {
 });
 
 function pressAddUsersButton() {
-    $('.no-ping-members').css('opacity','.3');
     window.location.href = 'http://group-invite?id=' + getUrlParameter("id");
 }
 /**

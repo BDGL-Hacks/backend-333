@@ -224,13 +224,11 @@ function addSwipeFunction() {
 function groupEditButtonClick(div)
 {
     groupid = div.attr('id');
-    div.css('opacity', '.3');
     window.location.href = "http://groups-edit?" + groupid;
 }
 function chatButtonClick(div)
 {
     groupid = div.attr('id');
-    div.css('opacity', '.3');
     window.location.href = "http://groups-chat?" + groupid;
 }
 // function called when the group status button is pressed
