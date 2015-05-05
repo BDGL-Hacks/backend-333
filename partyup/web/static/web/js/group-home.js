@@ -64,7 +64,7 @@ function noGroupsPage() {
 function addActiveGroup(group) {
     $(".carousel-inner").append('\
         <div class="item active">\
-            <div class="group-name">'
+            <div class="group-name" id="'+ group["id"] + '" onclick="groupEditButtonClick($(this));">'
             + group["title"] + '\
             <span class="glyphicon glyphicon-pencil" aria-hidden="true" style="font-size: 50px; margin-left: 40px;"></span>\
             </div>\
@@ -121,8 +121,9 @@ function addGroupWarning(numGroup){
 function addGroup(group) {
     $(".carousel-inner").append('\
         <div class="item">\
-            <div class="group-name">'
+            <div class="group-name" id="'+ group["id"] + '" onclick="groupEditButtonClick($(this));">'
             + group["title"] + '\
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true" style="font-size: 50px; margin-left: 40px;"></span>\
             </div>\
                 <div class="event-warning">\
                 </div>\
@@ -204,6 +205,11 @@ function addSwipeFunction() {
     );
 }
 
+function groupEditButtonClick(div)
+{
+    groupid = div.attr('id');
+    window.location.href = "http://groups-edit?" + groupid;
+}
 function chatButtonClick(div)
 {
     groupid = div.attr('id');
