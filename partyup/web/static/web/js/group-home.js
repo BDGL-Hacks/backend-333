@@ -105,13 +105,13 @@ function addGroupWarning(numGroup){
     itemDiv = $(".event-warning:eq(" + numGroup +")")
     itemDiv.css("display","block");
     itemDiv.append('\
-                <div class="event-warning-icon">\
-                     <span class="glyphicon glyphicon-bullhorn" \
-                aria-hidden="true" \
-                style="  top: 25px; left: 10px;"></span>\
-                </div>\
-                <div class="event-warning-text"> You are currently not with your group! Tap to update.</div>\
-                ');
+        <div class="event-warning-icon">\
+             <span class="glyphicon glyphicon-bullhorn" \
+        aria-hidden="true" \
+        style="  top: 25px; left: 10px;"></span>\
+        </div>\
+        <div class="event-warning-text"> You are currently not with your group! Tap to update.</div>\
+    ');
 }
 
 /**
@@ -181,56 +181,26 @@ function addIndicator(n) {
 function addSwipeFunction() {
     $(".carousel-indicators").after(
             '<script>\n' +
-                /*$(document).ready(function() {  */
-                    '$("#group-carousel").swiperight(function() {\n' +
-                        '$(this).carousel("prev");\n' +
-                        'var indic = $( ".active-indicator");\n' +
-                        'var prev = indic.prev();\n' +
-                        'if (prev.is("li")){\n' +
-                            'indic.removeClass("active-indicator");\n' +
-                            'prev.addClass("active-indicator");\n' +
-                        '}\n' +
-                    '});\n' +
-                    '$("#group-carousel").swipeleft(function() {\n' +
-                        '$(this).carousel("next")\n' +
-                        'var indic = $( ".active-indicator");\n' +
-                        'var next = indic.next();\n' +
-                        'if (next.is("li")){\n' +
-                            'indic.removeClass("active-indicator");\n' +
-                            'next.addClass("active-indicator");\n' +
-                        '}\n' +
-                    '});\n' +
-                /*});*/
+                '$("#group-carousel").swiperight(function() {\n' +
+                    '$(this).carousel("prev");\n' +
+                    'var indic = $( ".active-indicator");\n' +
+                    'var prev = indic.prev();\n' +
+                    'if (prev.is("li")){\n' +
+                        'indic.removeClass("active-indicator");\n' +
+                        'prev.addClass("active-indicator");\n' +
+                    '}\n' +
+                '});\n' +
+                '$("#group-carousel").swipeleft(function() {\n' +
+                    '$(this).carousel("next")\n' +
+                    'var indic = $( ".active-indicator");\n' +
+                    'var next = indic.next();\n' +
+                    'if (next.is("li")){\n' +
+                        'indic.removeClass("active-indicator");\n' +
+                        'next.addClass("active-indicator");\n' +
+                    '}\n' +
+                '});\n' +
         '</script>'
     );
-}
-
-// function for the ping page. It belongs here though, show it some love
-function pingMemberClick(div){
-	if(div.hasClass("ping-member-name")){
-	// slide all of the other active ones uo 
-	$( ".ping-member-name-active").each(function( i ) {
-		$(this).addClass("ping-member-name").removeClass("ping-member-name-active");
-		$(this).find("span").removeClass("glyphicon-menu-down").addClass("glyphicon-menu-right")
-		$(this).next().slideUp()
-	})
-	// slide this one down
-	div.addClass("ping-member-name-active").removeClass("ping-member-name");
-	div.find("span").removeClass("glyphicon-menu-right").addClass("glyphicon-menu-down")
-	div.next().slideDown()
-	}
-
-	else if(div.hasClass("ping-member-name-active")){
-	div.addClass("ping-member-name").removeClass("ping-member-name-active");
-	div.find("span").removeClass("glyphicon-menu-down").addClass("glyphicon-menu-right")
-	div.next().slideUp()
-	}
-}
-
-// function called when the ping button is pressed
-function pingbuttonclick(div)
-{
-
 }
 
 // function called when the group status button is pressed

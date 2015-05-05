@@ -41,21 +41,7 @@ function api_accounts_login(username, password, deviceID, callback) {
 function api_groups_getid(id, callback) {
     var url = "/api/groups/getid";
     var data = {'id': id};
-    console.log(data);
-    $.post(url, data, function(data) {
-        if (data.hasOwnProperty("accepted")) {
-            console.log(data);
-            if(data["accepted"]) {
-                new_data = {
-                    'accepted': data['accepted'],
-                    'group': data['group']
-                };
-                callback(new_data);
-            } else {
-                callback(data);
-            }
-        }
-    });
+    $.post(url, data, callback);
 }
 
 // changes a group's current event. Should only be done by the admin
@@ -65,16 +51,16 @@ function api_groups_currentevent(groupid, eventid, callback) {
         'group': groupid,
         'event': eventid
     };
-    console.log(data);
-    $.post(url, data, function(data) {
-        if (data.hasOwnProperty("accepted")) {
-            console.log(data);
-            if(data["accepted"]) {
-                callback(data);
-            } else {
-                callback(data);
-            }
-        }
-    
-});
+    $.post(url, data, callback);
 }
+
+// Send ping
+function api_groups_ping_send(group, user, callback) {
+    var url = "/api/groups/ping/send";
+    var data = {
+        'group': group,
+        'user': user,
+    }
+    $.post(url, data, callback);
+}
+
