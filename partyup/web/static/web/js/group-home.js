@@ -11,11 +11,10 @@ function carouselClick(div){
  */
 $(document).ready(function() {
     // Get groups and perform callback function
-    var delay = 400;
+    var delay = 0;
     setTimeout(function() {
         api_groups_get("attending", function(data) {
             $("#loader").css('display', "None");
-            $('.shade').fadeOut();
             var activeID = getUrlParameter('id');
             // if activeID does not exist, then set it to -1
             if (!activeID) {activeID = -1;};

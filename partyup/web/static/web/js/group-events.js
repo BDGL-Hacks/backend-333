@@ -12,12 +12,11 @@ function clickOnEvent(div) {
 }
 
 $(document).ready(function() {
-    var delay = 400;
+    var delay = 0;
     var groupid = getUrlParameter('id');
     setTimeout(function() {
         api_groups_getid(groupid, function(data) {
             $("#loader").css('display', "None");
-            $('.shade').fadeOut();
             $('.group-name').attr('onclick', 'groupBackClick(' + groupid +')');
             if (data["accepted"]) {
                 var group = data["group"];
