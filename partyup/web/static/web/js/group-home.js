@@ -84,7 +84,7 @@ function addActiveGroup(group) {
                         + group["current_event"]["location_name"] + '\
                     </div>\
                 </div>\
-                <div class="chat-button" id="'+ group["id"] + '"  >\
+                <div class="chat-button" id="'+ group["id"] + '" + onclick="chatButtonClick($(this));" >\
                     Chat\
                 </div>\
                 <div class="ping-button" id="'+ group["id"] + '" onclick="statusButtonClick($(this))">\
@@ -97,6 +97,7 @@ function addActiveGroup(group) {
         <div>\
     ');        
 }
+
 /**
  * Add a warning if the user is not
  * with his group
@@ -139,7 +140,7 @@ function addGroup(group) {
                         + group["current_event"]["location_name"] + '\
                     </div>\
                 </div>\
-                <div class="chat-button" id="'+ group["id"] + '" >\
+                <div class="chat-button" id="'+ group["id"] + '" onclick="chatButtonClick($(this));" >\
                     Chat\
                 </div>\
                 <div class="ping-button" id="'+ group["id"] + '" onclick="eventsButtonClick($(this))" >\
@@ -203,6 +204,11 @@ function addSwipeFunction() {
     );
 }
 
+function chatButtonClick(div)
+{
+    groupid = div.attr('id');
+    window.location.href = "http://groups-chat?" + groupid;
+}
 // function called when the group status button is pressed
 function statusButtonClick(div)
 {
