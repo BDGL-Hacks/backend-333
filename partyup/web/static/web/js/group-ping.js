@@ -60,7 +60,7 @@ $(document).ready(function() {
                 }
                 if (group_members.length == 1)
                 {
-                    $('.no-members-ping').css('display','block');
+                    $('.no-ping-members').css('display','block');
                 }
                 else
                 {
