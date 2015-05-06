@@ -9,6 +9,8 @@ def add_device(deviceID, user):
     If user has a phone device it will update
     the id.
     '''
+    print("trying to add device")
+    print("registration_id: " + str(deviceID))
     try:
         if not user.device:
             # Create the device
