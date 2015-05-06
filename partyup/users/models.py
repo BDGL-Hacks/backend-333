@@ -129,7 +129,7 @@ class Ping(models.Model):
     def to_dict(self):
         return {
             'user': self.user.to_dict(),
-            'group': Group.objects.get(pings=self),
+            'group': Group.objects.get(pings=self).id,
             'response': self.response,
         }
 
