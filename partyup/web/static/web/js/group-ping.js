@@ -32,7 +32,7 @@ function pingbuttonclick(groupid, userid) {
             button.text("Sent");
             button.css("background", "gray");
         } else {
-            alert("ass");
+            alert("Internal Server Error");
         }
     });
 }

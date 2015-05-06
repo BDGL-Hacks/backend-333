@@ -49,7 +49,7 @@ $(document).ready(function() {
                 }
             } else {
                 // Something went wrong in the api call.
-                alert("butts");
+                alert("Internal Server Error");
             }
         })}, delay);
 });
