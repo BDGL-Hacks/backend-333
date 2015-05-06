@@ -233,8 +233,6 @@ def user_ping_get(request):
 
     # Validate the request
     user = request.user.user_profile
-
-
     pings = Ping.objects.filter(user=user)
     results = []
     for p in pings:

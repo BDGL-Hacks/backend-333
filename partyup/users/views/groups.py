@@ -159,8 +159,6 @@ def group_get(request):
         return error
 
     response = {}
-    print request.user
-    print request.user.email
     user = request.user.user_profile
     for t in request.POST.getlist('type'):
         if t == 'attending':
