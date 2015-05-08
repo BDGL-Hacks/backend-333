@@ -54,8 +54,12 @@ class User_Profile(models.Model):
 
 
 class User_Group_info(models.Model):
+    # The current location of a user
     status = models.ForeignKey('Event')
+
+    # The user's status (can be 0, 1, or 2)
     indicator = models.IntegerField(default=0)
+
     user_profile = models.ForeignKey('User_Profile')
     group = models.ForeignKey('Group')
 
@@ -63,9 +67,6 @@ class User_Group_info(models.Model):
 class Event(models.Model):
     date_created = models.DateTimeField('date published', default=datetime.now)
     created_by = models.ForeignKey(User_Profile, related_name='event_creator')
-
-    # TODO: This. Need to think about best way to update this field in practice
-    is_active = None
 
     # Admin is in charge of event and can post in Event message board
     admin = models.ForeignKey(User_Profile)
@@ -78,16 +79,11 @@ class Event(models.Model):
 
     # Location information
     location_name = models.CharField(max_length=160)
-    location_lat = None
-    location_long = None
 
     invite_list = models.ManyToManyField(User_Profile, related_name='invite_list')
     attending_list = models.ManyToManyField(User_Profile, related_name='attending_list') 
 
     picture = models.CharField(max_length=40, null=True, blank=True)
-
-    # TODO later
-    category = None
 
     def __str__(self):
         return '%d %s' % (self.id, self.title)
@@ -122,8 +118,13 @@ class Event(models.Model):
 
 
 class Ping(models.Model):
+    # The user the ping was sent to
     user = models.ForeignKey(User_Profile)
+
+    # How the user responded
     response = models.BooleanField(default=False)
+
+    # When the ping was sent
     time = models.DateTimeField(default=datetime.now)
 
     def to_dict(self):
@@ -186,12 +187,18 @@ class Group(models.Model):
 
 
 class Channel(models.Model):
+    '''
+    Pusher channel
+    '''
     name = models.CharField(max_length=50, null=True)
     group = models.ForeignKey(Group)
     num_messages = models.IntegerField(default=0)
 
 
 class Message(models.Model):
+    '''
+    Message in a group chat
+    '''
     channel = models.ForeignKey(Channel)
     time_sent = models.DateTimeField('date published', default=datetime.now)
     owner = models.ForeignKey(User_Profile)

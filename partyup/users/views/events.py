@@ -154,10 +154,6 @@ def event_search(request):
     Possible information the request can include is title, public, location
     (not implemented yet), date/time, age, price, category (not implemented
     yet), and description.
-
-    TODO: Modify so it accepts a time parameter that queries just by time of
-    day.
-    TODO: Limit number of results returned
     '''
     error = _validate_request(request)
     if error:
@@ -165,15 +161,13 @@ def event_search(request):
 
     # Parse request and return search results
     query = Event.objects.all()
-
-    # TODO: there should probably be some kind of sanitation here
     if 'title' in request.POST:
         query = query.filter(title__icontains=request.POST['title'])
     if 'public' in request.POST:
         # requests.POST['public'] should be either 0 or 1
         query = query.filter(public=int(request.POST['public']))
     if 'location' in request.POST:
-        pass    # TODO
+        pass    # Not implemented yet
     if 'date' in request.POST:
         # Parse datetime object from request
         # Date should be formatted as follows:
@@ -187,7 +181,7 @@ def event_search(request):
     if 'price' in request.POST:
         query = query.filter(price__lte=int(request.POST['price']))
     if 'category' in request.POST:
-        pass    # TODO
+        pass    # Not implemented yet
     if 'description' in request.POST:
         query = query.filter(description__icontains=request.POST['description'])
 

@@ -69,7 +69,6 @@ def register(request):
                 return JsonResponse(response)
 
         # Create the new account and a profile for that account
-        # TODO: consider sanitizing input
         user = User.objects.create_user(username=username, password=user_pswd,
                                         email=user_email, first_name=user_fn,
                                         last_name=user_ln)

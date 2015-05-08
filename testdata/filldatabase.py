@@ -19,8 +19,13 @@ server = "http://52.4.3.6/api"
 cookies = {}
 
 
-# TODO: document the format of the input file
 def add_users():
+    '''
+    Reads an input file called 'users.txt' and adds the users defined in that
+    file to the database. Each line in the file should be of the form:
+    "First_name Last_name email@address Password". Lines starting with '#' will
+    be ignored.
+    '''
     f = open('users.txt', 'r')
     for l in f.readlines():
         line = l.strip('\n').split()
@@ -103,8 +108,16 @@ def _parse_invite_list(num_guests=0):
     return [_random_name() for i in range(num_guests)]
 
 
-# TODO: document the format of the input file
 def add_events():
+    '''
+    Reads an input file called 'events.txt' and adds the events defined in that
+    file to the database. Each line in the file should be of the form:
+    "username title time location_name public age_restriction price invite_guests".
+    username is the person to use when creating the event, time is the
+    displacement (in days) from the current time, and invite_guest gives the
+    number of people on the invite list. Those users are chosen at random from
+    the users.txt file. Lines starting with '#' will be ignored.
+    '''
     f = open('events.txt', 'r')
     for l in f.readlines():
         line = l.strip('\n').split()
@@ -134,19 +147,12 @@ def add_events():
             print(l, response, file=sys.stderr)
 
 
-# TODO: this
-def add_groups():
-    pass
-
-
 def main(args):
     global server
     if len(args) > 1:
         server = args[1]
     add_users()
     add_events()
-    # add_groups()
-
 
 if __name__ == '__main__':
     main(sys.argv)

@@ -7,64 +7,56 @@ function carouselClick(div){
 
 /**
  * Get all of the users groups, and generate the home page.
- * TODO: refactor so delay is more intuitive
  */
 $(document).ready(function() {
     // Get groups and perform callback function
-    var delay = 0;
-    setTimeout(function() {
-        api_groups_get("attending", function(data) {
-            $("#loader").css('display', "None");
-            var activeID = getUrlParameter('id');
-            // if activeID does not exist, then set it to -1
-            if (!activeID) {activeID = -1;};
-            if (data["accepted"]) {
-                var groups = data["groups"];
-                var numGroups = groups.length;
-                var userID = data['user_id'];
-                if (numGroups == 0) {
-                    // Redirect to some other page in the app. Not sure about what to do.
-                    noGroupsPage();
-                } else {
-                    // Print out all of the groups
-                    for (var i = 0; i < numGroups; i++) {
-                        // if activeID is true, set groupID active
-                        // else have the first group active
-                        if ((groups[i]['id'] == activeID) || (activeID == -1 && i == 0)) {
-                            // Mark first group as active
-                            addActiveGroup(groups[i]);
-                            if (numGroups > 1) {
-                                addActiveIndicator(i);
-                            }
-                        } else {
-                            addGroup(groups[i]);
-                            addIndicator(i);
+    api_groups_get("attending", function(data) {
+        $("#loader").css('display', "None");
+        var activeID = getUrlParameter('id');
+        // if activeID does not exist, then set it to -1
+        if (!activeID) {activeID = -1;};
+        if (data["accepted"]) {
+            var groups = data["groups"];
+            var numGroups = groups.length;
+            var userID = data['user_id'];
+            if (numGroups == 0) {
+                // Redirect to some other page in the app. Not sure about what to do.
+                noGroupsPage();
+            } else {
+                // Print out all of the groups
+                for (var i = 0; i < numGroups; i++) {
+                    // if activeID is true, set groupID active
+                    // else have the first group active
+                    if ((groups[i]['id'] == activeID) || (activeID == -1 && i == 0)) {
+                        // Mark first group as active
+                        addActiveGroup(groups[i]);
+                        if (numGroups > 1) {
+                            addActiveIndicator(i);
                         }
-                        var userInfo = 0;
-                        for (var n = 0; n < groups[i]['members'].length; n++)
-                        {
-                            if (groups[i]['members'][n]['id'] == userID)
-                            { 
-                                userInfo = groups[i]['members'][n];
-                            }
-                        }
-                        //console.log(userInfo);
-                        //console.log(userInfo['group_status']['status']['id']);
-                        //console.log(groups[i]);
-                        //console.log(groups[i]['current_event']['id']);
-                        if (userInfo['group_status']['status']['id'] != groups[i]['current_event']['id'])
-                        {
-                            //console.log(i);
-                            addGroupWarning(i, groups[i]['id']);
+                    } else {
+                        addGroup(groups[i]);
+                        addIndicator(i);
+                    }
+                    var userInfo = 0;
+                    for (var n = 0; n < groups[i]['members'].length; n++)
+                    {
+                        if (groups[i]['members'][n]['id'] == userID)
+                        { 
+                            userInfo = groups[i]['members'][n];
                         }
                     }
-                    addSwipeFunction();
+                    if (userInfo['group_status']['status']['id'] != groups[i]['current_event']['id'])
+                    {
+                        addGroupWarning(i, groups[i]['id']);
+                    }
                 }
-            } else {
-                // Something went wrong in the api call.
-                alert("Internal Server error");
+                addSwipeFunction();
             }
-        })}, delay);
+        } else {
+            // Something went wrong in the api call.
+            alert("Internal Server error");
+        }
+    });
 });
 
 /**
