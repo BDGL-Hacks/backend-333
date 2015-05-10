@@ -31,6 +31,10 @@ def _validate_request(request):
 
 @csrf_exempt
 def register(request):
+    '''
+    Registers a new user. Takes a user's first and last name, their email, and
+    a password
+    '''
     response = {}
     if request.method == 'POST':
         user_data = request.POST
@@ -135,6 +139,10 @@ def login_view(request):
 
 
 def _format_search_results(queryset):
+    '''
+    Takes a queryset of user_profiles and returns a
+    formatted json
+    '''
     results = []
     for entry in queryset:
         if hasattr(entry, 'user_profile'):
@@ -145,6 +153,11 @@ def _format_search_results(queryset):
 
 @csrf_exempt
 def user_search(request):
+    ''' 
+    Searches through all users and returns users who's email, last name, or first name
+    match each of the terms in a given string.
+    Terms in the string are seperated by spaces
+    '''
     response = {}
 
     error = _validate_request(request)
@@ -154,12 +167,14 @@ def user_search(request):
     query = User.objects.all()
 
     if 'search' in request.POST:
+        # Split the search into terms
         terms = request.POST['search'].split(' ')
         for term in terms:
             if term:
                 first = query.filter(first_name__icontains=term)
                 last = query.filter(last_name__icontains=term)
                 username = query.filter(email__icontains=term)
+                # a query is the logical OR combination of all searches
                 query = first | last | username
 
         results = _format_search_results(query)
@@ -176,6 +191,9 @@ def user_search(request):
 
 @csrf_exempt
 def user_batch(request):
+    ''' 
+    Will return the first 10 users in the database
+    '''
     response = {}
     error = _validate_request(request)
     if error:
