@@ -163,9 +163,13 @@ def group_invite(info):
         invitees = [-1]
     inviteeSet = User_Profile.objects.filter(id__in=invitees)
     for invitee in inviteeSet:
-        invitee.groups_invite_list.add(group)
-        invitee.save()
-        group.invited_members.add(invitee)
+        # Checks to see if an invitee already exists in the group
+        if not group.group_members.filter(id=invitee.id).exists():
+            invitee.groups_invite_list.add(group)
+            invitee.save()
+            group.invited_members.add(invitee)
+        else:
+            print ("Tried to invite someone that is attending group")
     group.save()
 
     # Send push notifications to everyone
@@ -237,9 +241,13 @@ def event_invite(info):
 
     inviteeSet = User_Profile.objects.filter(id__in=invitees)
     for invitee in inviteeSet:
-        invitee.event_invite_list.add(event)
-        invitee.save()
-        event.invite_list.add(invitee)
+        # Checks to see if an invitee already exists in the event
+        if not event.attending_list.filter(id=invitee.id).exists():
+            invitee.event_invite_list.add(event)
+            invitee.save()
+            event.invite_list.add(invitee)
+        else:
+            print ("There is someone already invited to this event")
     event.save()
 
     # Send push notifications to everyone
