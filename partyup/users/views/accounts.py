@@ -250,7 +250,7 @@ def user_ping_get(request):
 
     # Validate the request
     user = request.user.user_profile
-    pings = Ping.objects.filter(user=user)
+    pings = Ping.objects.filter(user=user, response=False)
     results = []
     for p in pings:
         results.append(p.to_dict())
