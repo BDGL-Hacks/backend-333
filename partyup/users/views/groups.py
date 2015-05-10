@@ -397,7 +397,7 @@ def group_ping_get(request):
         response['error'] = 'Invalid permissions'
         return JsonResponse(request)
 
-    pings = group.pings.all()
+    pings = group.pings.filter(response=False)
     results = []
     for p in pings:
         results.append(p.to_dict())
