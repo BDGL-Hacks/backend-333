@@ -63,6 +63,8 @@ class User_Group_info(models.Model):
     user_profile = models.ForeignKey('User_Profile')
     group = models.ForeignKey('Group')
 
+    def __str__(self):
+        return '%s %s' % (self.user_profile, self.group)
 
 class Event(models.Model):
     date_created = models.DateTimeField('date published', default=datetime.now)
