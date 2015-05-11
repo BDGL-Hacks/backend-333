@@ -11,23 +11,31 @@ def add_device(deviceID, user):
     '''
     print("trying to add device")
     print("registration_id: " + str(deviceID))
-    try:
-        if not user.device:
-            # Create the device
-            device = APNSDevice(name=user.user.email, registration_id=deviceID)
-            device.save()
+    # delete an old device with the id
+    oldDevice = APNSDevice.objects.filter(registration_id=deviceID)
+    if oldDevice:
+        print ("Removing old device")
+        oldDevice = oldDevice[0]
+        print (oldDevice)
+        oldUser = oldDevice.user_profile_set.all()[0]
+        oldUser.device = None
+        oldUser.save()
+        user.device = oldDevice
+        user.save()
+        return
+
+    if not user.device:
+        # Create the device
+        device = APNSDevice(name=user.user.email, registration_id=deviceID)
+        device.save()
 
             # Add the device to the user
-            user.device = device
-            user.save()
-        else:
-            if user.device.registration_id != deviceID:
-                user.device.registration_id = deviceID
-                user.device.save()
-    # Check if the id exists for another user
-    except IntegrityError:
-        return JsonResponse({'error': "Duplicate Device ID",
-                            'accepted': False})
+        user.device = device
+        user.save()
+    else:
+        if user.device.registration_id != deviceID:
+            user.device.registration_id = deviceID
+            user.device.save()
 
 
 def send_group_message(users, message, badge=None, extra=None):
