@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
@@ -12,7 +13,7 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <link href="http://fonts.googleapis.com/css?family=Rancho|Roboto+Slab" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" type="text/css" href="landingpage.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'web/css/landingpage.css' %}">
 </head>
 <body>
     <div class="logo">
@@ -37,7 +38,7 @@
                 </div>
             </div>
             <div class="col-md-5">
-                <img class="featurette-image img-responsive center-block"  alt="500x500" src="group-detail-iPhone.png" data-holder-rendered="true">
+                <img class="featurette-image img-responsive center-block"  alt="500x500" src="{% static 'web/images/group-detail-iPhone.png' %}" data-holder-rendered="true">
             </div>
         </div> <!-- end of row -->
 
@@ -45,7 +46,7 @@
 
         <div class="row featurette">
             <div class="col-md-5">
-                <img class="featurette-image img-responsive center-block"  alt="500x500" src="group-events-iPhone.png" data-holder-rendered="true">
+                <img class="featurette-image img-responsive center-block"  alt="500x500" src="{% static 'web/images/group-events-iPhone.png' %}" data-holder-rendered="true">
             </div>
             <div class="col-md-7">
                 <h2 class="featurette-heading" style="margin-bottom: 30px;">Keep track of the people that matter!</h2>
@@ -76,7 +77,7 @@
                 </div>
             </div>
             <div class="col-md-5">
-                <img class="featurette-image img-responsive center-block"  alt="500x500" src="group-text-iPhone.png" data-holder-rendered="true">
+                <img class="featurette-image img-responsive center-block"  alt="500x500" src="{% static 'web/images/group-text-iPhone.png' %}" data-holder-rendered="true">
             </div>
         </div> <!-- end of row -->
 
@@ -84,7 +85,7 @@
 
         <div class="row featurette">
             <div class="col-md-5">
-                <img class="featurette-image img-responsive center-block"  alt="500x500" src="group-detail-iPhone.png" data-holder-rendered="true">
+                <img class="featurette-image img-responsive center-block"  alt="500x500" src="{% static 'web/images/group-ping-iPhone.png' %}" data-holder-rendered="true">
             </div>
             <div class="col-md-7">
                 <h2 class="featurette-heading" style="margin-bottom: 30px;">Party safely!</h2>
@@ -118,7 +119,7 @@
                 </div>
             </div>
             <div class="col-md-5">
-                <img class="featurette-image img-responsive center-block"  alt="500x500" src="group-creation-iPhone.png" data-holder-rendered="true">
+                <img class="featurette-image img-responsive center-block"  alt="500x500" src="{% static 'web/images/group-creation-iPhone.png' %}" data-holder-rendered="true">
             </div>
         </div> <!-- end of row -->
     </div> <!-- end of container -->
