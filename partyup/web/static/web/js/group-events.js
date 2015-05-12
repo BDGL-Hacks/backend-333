@@ -49,7 +49,7 @@ $(document).ready(function() {
                 }
             } else {
                 // Something went wrong in the api call.
-                alert("Internal Server Error");
+                alert("Internal Server Error loading group-events");
             }
         })}, delay);
 });
