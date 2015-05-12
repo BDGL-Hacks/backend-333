@@ -21,6 +21,7 @@ $(document).ready(function() {
             var userID = data['user_id'];
             if (numGroups == 0) {
                 // Redirect to some other page in the app. Not sure about what to do.
+                console.log("No Groups!")
                 noGroupsPage();
             } else {
                 // Print out all of the groups
@@ -53,8 +54,9 @@ $(document).ready(function() {
                 addSwipeFunction();
             }
         } else {
+            console.log(data);
             // Something went wrong in the api call.
-            alert("Internal Server error");
+            alert("Server error while loading doc");
         }
     });
 });
@@ -64,7 +66,7 @@ $(document).ready(function() {
  */
 function noGroupsPage() {
     $(".carousel-inner").append('\
-        <div style="padding-top:100px;font-size:xx-large;">You don\'t have any groups.</div>\
+        <div style="padding-top:100px;font-size:100px;">You don\'t have any groups.</div>\
     ');
 }
 

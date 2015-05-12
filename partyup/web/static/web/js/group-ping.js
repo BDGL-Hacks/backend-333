@@ -32,7 +32,7 @@ function pingbuttonclick(groupid, userid) {
             button.text("Sent");
             button.css("background", "gray");
         } else {
-            alert("Internal Server Error");
+            alert("Internal Server Error on ping click");
         }
     });
 }
@@ -69,7 +69,7 @@ $(document).ready(function() {
                 }
             } else {
                 // things are very wrong.
-                alert("Internal Server Error");
+                alert("Internal Server Error loading group ping");
             }
         });},
         delay
